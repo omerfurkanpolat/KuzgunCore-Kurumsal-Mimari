@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kuzgun.DataAccess\Kuzgun.DataAccess.csproj" />
+    <ProjectReference Include="..\Kuzgun.Entities\Kuzgun.Entities.csproj" />
+  </ItemGroup>
+
+</Project>
