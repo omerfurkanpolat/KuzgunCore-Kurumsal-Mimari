@@ -24,7 +24,7 @@ namespace Kuzgun.Core.Utilities.Security.Jwt
             _tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
             _accesTokenExpiration=DateTime.Now.AddMinutes(_tokenOptions.AccessTokenExpiration);
         }
-        public AccesToken CreateToken(User user, List<Role> roles)
+        public AccessToken CreateToken(User user, List<Role> roles)
         {
             var securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey);
             var signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(securityKey);
@@ -32,7 +32,7 @@ namespace Kuzgun.Core.Utilities.Security.Jwt
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
             var token = jwtSecurityTokenHandler.WriteToken(jwt);
 
-            return new AccesToken
+            return new AccessToken
             {
                 Token = token,
                 Expiration = _accesTokenExpiration

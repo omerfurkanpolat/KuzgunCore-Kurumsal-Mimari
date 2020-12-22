@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Kuzgun.Bussines.Abstract;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
+using Kuzgun.Core.Utilities.Security;
 using Kuzgun.Entities.ComplexTypes.UsersDTO;
 using Kuzgun.Entities.Concrete;
 using Microsoft.AspNetCore.Identity;
@@ -21,14 +23,17 @@ namespace Kuzgun.WebApi.Controllers
         private RoleManager<Role> _roleManager;
         private IEmailService _emailService;
         private SignInManager<User> _signInManager;
+        private IAuthService _authService;
+        
 
         public AccountsController(UserManager<User> userManager, RoleManager<Role> roleManager,
-            IEmailService emailService, SignInManager<User> signInManager)
+            IEmailService emailService, SignInManager<User> signInManager, IAuthService authService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
             _signInManager = signInManager;
+            _authService = authService;
         }
 
         [HttpPost]
@@ -54,7 +59,7 @@ namespace Kuzgun.WebApi.Controllers
                 IsDeleted = false
 
             };
-
+            
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
@@ -133,7 +138,12 @@ namespace Kuzgun.WebApi.Controllers
             {
                 user.LastActive = DateTime.Now;
                 await _userManager.UpdateAsync(user);
-                //Token Gönderilecek
+                Role role=new Role();
+                List<role.Name> = _userManager.GetRolesAsync(user);
+                
+                roles =await _userManager.GetRolesAsync(user);
+
+                
                 return Ok();
             }
 
