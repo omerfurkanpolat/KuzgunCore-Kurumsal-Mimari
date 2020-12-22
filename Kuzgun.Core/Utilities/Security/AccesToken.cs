@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kuzgun.Core.Utilities.Security.Jwt
+namespace Kuzgun.Core.Utilities.Security
 {
     public class AccesToken
     {
