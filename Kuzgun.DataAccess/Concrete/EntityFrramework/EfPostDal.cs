@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Kuzgun.Core.DataAccess.EntityFramework;
-
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
 using Microsoft.EntityFrameworkCore;

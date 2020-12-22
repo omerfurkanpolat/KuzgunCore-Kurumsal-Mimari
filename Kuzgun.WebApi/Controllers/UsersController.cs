@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
-
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes.PostCommentsDTO;
 using Kuzgun.Entities.Concrete;
 

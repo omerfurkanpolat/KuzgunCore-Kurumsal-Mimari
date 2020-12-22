@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
- using Kuzgun.Entities.Concrete;
+using Kuzgun.Core.Entity.Concrete;
+using Kuzgun.Entities.Concrete;
 
 namespace Kuzgun.Bussines.Abstract
 {

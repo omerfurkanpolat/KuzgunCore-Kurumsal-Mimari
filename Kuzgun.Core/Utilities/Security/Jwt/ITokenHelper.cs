@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
+﻿using System.Collections.Generic;
+using Kuzgun.Core.Entity.Concrete;
 
 namespace Kuzgun.Core.Utilities.Security.Jwt
 {
     public interface ITokenHelper
     {
-        //AccesToken CreateToken(User user)
+        AccesToken CreateToken(User user, List<Role> roles);
     }
 }

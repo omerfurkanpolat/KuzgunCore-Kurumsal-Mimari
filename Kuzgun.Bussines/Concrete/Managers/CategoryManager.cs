@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;

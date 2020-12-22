@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
-
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes;
 using Kuzgun.Entities.ComplexTypes.CategoriesDTO;
 using Kuzgun.Entities.ComplexTypes.RolesDTO;

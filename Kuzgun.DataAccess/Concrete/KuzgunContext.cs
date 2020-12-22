@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.DataAccess.Concrete.Mapping;
 using Kuzgun.Entities.Concrete;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

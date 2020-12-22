@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Kuzgun.Core.Entity;
 
-namespace Kuzgun.Entities.Concrete
+namespace Kuzgun.Core.Entity.Concrete
 {
     public class Category:IEntity
     {

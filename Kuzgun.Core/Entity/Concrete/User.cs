@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 
-namespace Kuzgun.Entities.Concrete
+namespace Kuzgun.Core.Entity.Concrete
 {
     public class User:IdentityUser<int>
     {

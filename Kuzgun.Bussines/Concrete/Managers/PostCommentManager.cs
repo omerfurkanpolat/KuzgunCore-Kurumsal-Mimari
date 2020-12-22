@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
-
+using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
 
