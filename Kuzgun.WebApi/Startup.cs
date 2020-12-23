@@ -12,9 +12,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
+using Kuzgun.Core.DependencyResolver;
 using Kuzgun.Core.Entity.Concrete;
+using Kuzgun.Core.Extensions;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Core.Utilities.EmailService.Smtp.Google;
+using Kuzgun.Core.Utilities.IoC;
 using Kuzgun.Core.Utilities.Security.Encryption;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.DataAccess.Concrete;
@@ -84,6 +87,11 @@ namespace Kuzgun.WebApi
                         IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
                     };
                 });
+            services.AddDependecyResolvers(new ICoreModule[]
+            {
+                new CoreModule()
+            });
+            
 
 
 
@@ -91,25 +99,8 @@ namespace Kuzgun.WebApi
 
 
 
-            //services.AddScoped<ICategoryService, CategoryManager>();
-            //services.AddScoped<ICategoryDal, EfCategoryDal>();
 
-            //services.AddScoped<IMessageService, MessageManager>();
-            //services.AddScoped<IMessageDal, EfMessageDal>();
-
-            //services.AddScoped<IPostCommentService, PostCommentManager>();
-            //services.AddScoped<IPostCommentDal, EfPostCommentDal>();
-
-            //services.AddScoped<IPostService, PostManager>();
-            //services.AddScoped<IPostDal, EfPostDal>();
-
-            //services.AddScoped<IPostStatService, PostStatManager>();
-            //services.AddScoped<IPostStatDal, EfPostStatDal>();
-
-            //services.AddScoped<ISubCategoryService, SubCategoryManager>();
-            //services.AddScoped<ISubCategoryDal, EfSubCategoryDal>();
-
-            //services.AddScoped<IEmailService, GoogleEmailService>();
+            
 
             services.AddControllers();
         }

@@ -39,7 +39,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessResult(Messages.CategoryAdded); 
         }
 
-        [TransactionScopeAspect]
+        
         public IResult Update(Category entity)
         {
             _categoryDal.Update(entity);
