@@ -141,7 +141,7 @@ namespace Kuzgun.WebApi.Controllers
             }
             user.LastActive = DateTime.Now;
             await _userManager.UpdateAsync(user);
-
+            var claims = await _userManager.GetClaimsAsync(user);
             var createToken= await _authService.CreateAccessToken(user);
             if (createToken.Success)
             {

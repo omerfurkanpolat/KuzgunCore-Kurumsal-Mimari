@@ -13,6 +13,7 @@ using Kuzgun.Entities.ComplexTypes.RolesDTO;
 using Kuzgun.Entities.ComplexTypes.SubCategoriesDTO;
 using Kuzgun.Entities.ComplexTypes.UsersDTO;
 using Kuzgun.Entities.Concrete;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +36,7 @@ namespace Kuzgun.WebApi.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
-
+        [Authorize(Roles = "admin")]
         [HttpGet]
         [Route("getCategories")]
 
@@ -52,7 +53,7 @@ namespace Kuzgun.WebApi.Controllers
             return BadRequest("Kategoriler Getirilemedi");
 
         }
-
+        
         [HttpPost]
         [Route("createCategory")]
         public IActionResult CreateCategory(CategoryForCreationDTO model)
