@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
@@ -29,6 +31,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return _postDal.Get(p => p.PostId == id);
         }
 
+        [ValidationAspect(typeof(PostValidator))]
         public void Create(Post entity, int subCategoryId)
         {
             _postDal.Add(entity);
