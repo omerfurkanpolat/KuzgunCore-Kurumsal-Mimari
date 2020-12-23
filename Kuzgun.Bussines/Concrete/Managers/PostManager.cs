@@ -30,8 +30,8 @@ namespace Kuzgun.Bussines.Concrete.Managers
         {
             return _postDal.Get(p => p.PostId == id);
         }
-
-        [ValidationAspect(typeof(PostValidator))]
+        
+        [ValidationAspect(typeof(PostValidator),Priority = 1)]
         public void Create(Post entity, int subCategoryId)
         {
             _postDal.Add(entity);

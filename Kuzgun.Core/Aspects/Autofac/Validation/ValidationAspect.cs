@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Castle.Core.Interceptor;
+
+using Castle.DynamicProxy;
 using FluentValidation;
 using Kuzgun.Core.CrossCuttingConcerns.Validation.FluentValidation;
 using Kuzgun.Core.Utilities.Interceptors.Autofac;

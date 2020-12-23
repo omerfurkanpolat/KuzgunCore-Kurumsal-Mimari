@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using Autofac;
+using Autofac.Extras.DynamicProxy;
+using Castle.DynamicProxy;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Core.Utilities.EmailService.Smtp.Google;
+using Kuzgun.Core.Utilities.Interceptors.Autofac;
 using Kuzgun.Core.Utilities.Security;
 using Kuzgun.Core.Utilities.Security.Jwt;
 using Kuzgun.DataAccess.Abstract;
@@ -38,7 +41,13 @@ namespace Kuzgun.Bussines.DependencyResolvers.Autofac
             builder.RegisterType<AuthManager>().As<IAuthService>();
             builder.RegisterType<JwtHelper>().As<ITokenHelper>();
 
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
+            builder.RegisterAssemblyTypes(assembly).AsImplementedInterfaces()
+                .EnableInterfaceInterceptors(new ProxyGenerationOptions()
+                {
+                    Selector = new AspectInterceptorSelector()
+                }).SingleInstance();
 
             builder.RegisterType<GoogleEmailService>().As<IEmailService>();
         }
