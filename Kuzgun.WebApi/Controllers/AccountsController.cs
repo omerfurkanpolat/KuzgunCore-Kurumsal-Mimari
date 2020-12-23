@@ -134,20 +134,25 @@ namespace Kuzgun.WebApi.Controllers
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                user.LastActive = DateTime.Now;
-                await _userManager.UpdateAsync(user);
-                Role role=new Role();
-                List<role.Name> = _userManager.GetRolesAsync(user);
-                
-                roles =await _userManager.GetRolesAsync(user);
+                return BadRequest("Giriş yapılamadı");
+            }
+            user.LastActive = DateTime.Now;
+            await _userManager.UpdateAsync(user);
 
-                
-                return Ok();
+            var createToken= await _authService.CreateAccessToken(user);
+            if (createToken.Success)
+            {
+                return Ok(createToken.Data);
             }
 
-            return BadRequest("Giriş yapılamadı");
+            return BadRequest("Bir hata oluştu");
+
+
+
+
+
         }
 
         [HttpPost]

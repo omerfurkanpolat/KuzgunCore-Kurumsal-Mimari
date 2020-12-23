@@ -10,6 +10,8 @@ namespace Kuzgun.Bussines.Abstract
 {
     public interface IAuthService
     {
-         IDataResult<AccessToken> CreateAccessToken(User user, List<Role> roles);
+         Task<IDataResult<AccessToken>> CreateAccessToken(User user);
+
+         Task<List<Role>> ChangeRoleType( List<string> roleList);
     }
 }
