@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
+using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Core.Aspects.Autofac.Transaction;
+using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
@@ -29,16 +32,18 @@ namespace Kuzgun.Bussines.Concrete.Managers
         {
             return new SuccessDataResult<Category>(_categoryDal.Get(c => c.CategoryId == id));  
         }
-
+        [ValidationAspect(typeof(CategoryValidator))]
         public IResult Create(Category entity)
         {
             _categoryDal.Add(entity);
             return new SuccessResult(Messages.CategoryAdded); 
         }
 
+        [TransactionScopeAspect]
         public IResult Update(Category entity)
         {
             _categoryDal.Update(entity);
+            
             return new SuccessResult(Messages.CategoryUpdated);
         }
 

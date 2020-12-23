@@ -58,10 +58,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("createCategory")]
         public IActionResult CreateCategory(CategoryForCreationDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Eksik ya da hatalı bilgi girdiniz");
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest("Eksik ya da hatalı bilgi girdiniz");
+            //}
 
             var category = new Category
             {
@@ -97,10 +97,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("updateCategory/{id}")]
         public IActionResult UpdateCategory(CategoryForUpdateDTO model, int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Eksik veya hatalı bilgi gönderdiniz");
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest("Eksik veya hatalı bilgi gönderdiniz");
+            //}
             var category = _categoryService.GetById(id);
             category.Data.CategoryName = model.CategoryName;
 

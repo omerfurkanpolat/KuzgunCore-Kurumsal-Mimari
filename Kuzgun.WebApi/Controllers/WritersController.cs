@@ -26,8 +26,8 @@ namespace Kuzgun.WebApi.Controllers
         [Route("addPost/{userId}")]
         public IActionResult AddPost(int userId, PostForCreationDTO model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Eksik veya hatalı bilgi girdiniz");
+            //if (!ModelState.IsValid)
+            //    return BadRequest("Eksik veya hatalı bilgi girdiniz");
 
             Post post = new Post
             {
