@@ -15,13 +15,16 @@ using Kuzgun.Bussines.Concrete.Managers;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Core.Utilities.EmailService.Smtp.Google;
+using Kuzgun.Core.Utilities.Security.Encryption;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.DataAccess.Concrete;
 using Kuzgun.DataAccess.Concrete.EntityFramework;
 using Kuzgun.Entities.Concrete;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using TokenOptions = Kuzgun.Core.Utilities.Security.Jwt.TokenOptions;
 
 namespace Kuzgun.WebApi
 {
@@ -56,26 +59,53 @@ namespace Kuzgun.WebApi
 
 
             });
-            services.AddScoped<ICategoryService, CategoryManager>();
-            services.AddScoped<ICategoryDal, EfCategoryDal>();
 
-            services.AddScoped<IMessageService, MessageManager>();
-            services.AddScoped<IMessageDal, EfMessageDal>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigins",
+                    builder => builder.WithOrigins("http://localhost:4200"));
+            });
+            var tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = tokenOptions.Issuer,
+                    ValidAudience = tokenOptions.Audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+                };
+            });
 
-            services.AddScoped<IPostCommentService, PostCommentManager>();
-            services.AddScoped<IPostCommentDal, EfPostCommentDal>();
 
-            services.AddScoped<IPostService, PostManager>();
-            services.AddScoped<IPostDal, EfPostDal>();
 
-            services.AddScoped<IPostStatService, PostStatManager>();
-            services.AddScoped<IPostStatDal, EfPostStatDal>();
 
-            services.AddScoped<ISubCategoryService, SubCategoryManager>();
-            services.AddScoped<ISubCategoryDal, EfSubCategoryDal>();
 
-            services.AddScoped<IEmailService, GoogleEmailService>();
 
+
+            //services.AddScoped<ICategoryService, CategoryManager>();
+            //services.AddScoped<ICategoryDal, EfCategoryDal>();
+
+            //services.AddScoped<IMessageService, MessageManager>();
+            //services.AddScoped<IMessageDal, EfMessageDal>();
+
+            //services.AddScoped<IPostCommentService, PostCommentManager>();
+            //services.AddScoped<IPostCommentDal, EfPostCommentDal>();
+
+            //services.AddScoped<IPostService, PostManager>();
+            //services.AddScoped<IPostDal, EfPostDal>();
+
+            //services.AddScoped<IPostStatService, PostStatManager>();
+            //services.AddScoped<IPostStatDal, EfPostStatDal>();
+
+            //services.AddScoped<ISubCategoryService, SubCategoryManager>();
+            //services.AddScoped<ISubCategoryDal, EfSubCategoryDal>();
+
+            //services.AddScoped<IEmailService, GoogleEmailService>();
+            
             services.AddControllers();
         }
 
@@ -87,12 +117,14 @@ namespace Kuzgun.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

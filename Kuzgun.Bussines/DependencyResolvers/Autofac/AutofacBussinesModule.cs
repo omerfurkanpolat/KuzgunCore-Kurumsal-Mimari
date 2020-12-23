@@ -6,6 +6,8 @@ using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Core.Utilities.EmailService.Smtp.Google;
+using Kuzgun.Core.Utilities.Security;
+using Kuzgun.Core.Utilities.Security.Jwt;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.DataAccess.Concrete.EntityFramework;
 
@@ -24,7 +26,6 @@ namespace Kuzgun.Bussines.DependencyResolvers.Autofac
             builder.RegisterType<PostCommentManager>().As<IPostCommentService>();
             builder.RegisterType<EfPostCommentDal>().As<IPostCommentDal>();
 
-
             builder.RegisterType<PostManager>().As<IPostService>();
             builder.RegisterType<EfPostDal>().As<IPostDal>();
 
@@ -33,6 +34,11 @@ namespace Kuzgun.Bussines.DependencyResolvers.Autofac
 
             builder.RegisterType<SubCategoryManager>().As<ISubCategoryService>();
             builder.RegisterType<EfSubCategoryDal>().As<ISubCategoryDal>();
+
+            builder.RegisterType<AuthManager>().As<IAuthService>();
+            builder.RegisterType<JwtHelper>().As<ITokenHelper>();
+
+
 
             builder.RegisterType<GoogleEmailService>().As<IEmailService>();
         }

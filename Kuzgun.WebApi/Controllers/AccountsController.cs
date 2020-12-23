@@ -45,12 +45,13 @@ namespace Kuzgun.WebApi.Controllers
                 return BadRequest("Eksik Bilgi Doldurdunuz");
             }
 
-            var uniqeEmailCheck = _userManager.FindByEmailAsync(model.Email);
-            var uniqueUserNameCheck = _userManager.FindByNameAsync(model.UserName);
-            if (uniqeEmailCheck != null || uniqueUserNameCheck != null)
-            {
-                return BadRequest("Bu kullanıcı adı veya email adresi daha önce kullamış");
-            }
+            
+            //var uniqeEmailCheck = _userManager.FindByEmailAsync(model.Email);
+            //var uniqueUserNameCheck = _userManager.FindByNameAsync(model.UserName);
+            //if (uniqeEmailCheck != null || uniqueUserNameCheck != null)
+            //{
+            //    return BadRequest("Bu kullanıcı adı veya email adresi daha önce kullamış");
+            //}
 
             User user = new User
             {
