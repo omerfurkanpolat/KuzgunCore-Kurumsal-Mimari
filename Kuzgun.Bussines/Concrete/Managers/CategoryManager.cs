@@ -34,6 +34,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessDataResult<Category>(_categoryDal.Get(c => c.CategoryId == id));  
         }
         [ValidationAspect(typeof(CategoryValidator))]
+        [CacheRemoveAspect("ICategoryService.Get")]
         public IResult Create(Category entity)
         {
             _categoryDal.Add(entity);
