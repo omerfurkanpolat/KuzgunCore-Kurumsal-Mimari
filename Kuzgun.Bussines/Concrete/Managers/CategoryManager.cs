@@ -5,6 +5,7 @@ using System.Text;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Core.Aspects.Autofac.Caching;
 using Kuzgun.Core.Aspects.Autofac.Transaction;
 using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
@@ -22,7 +23,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
         {
             _categoryDal = categoryDal;
         }
-
+        [CacheAspect(duration:2)]
         public IDataResult<List<Category>> GetAll()
         {
             return new SuccessDataResult<List<Category>>(_categoryDal.GetList()); 

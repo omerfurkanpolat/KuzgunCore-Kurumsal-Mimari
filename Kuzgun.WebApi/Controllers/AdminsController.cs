@@ -36,7 +36,7 @@ namespace Kuzgun.WebApi.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
-        [Authorize(Roles = "admin")]
+        
         [HttpGet]
         [Route("getCategories")]
 
