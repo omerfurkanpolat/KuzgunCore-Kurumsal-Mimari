@@ -415,19 +415,5 @@ namespace Kuzgun.WebApi.Controllers
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

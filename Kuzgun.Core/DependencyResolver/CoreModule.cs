@@ -4,6 +4,7 @@ using System.Text;
 using Kuzgun.Core.CrossCuttingConcerns.Caching;
 using Kuzgun.Core.CrossCuttingConcerns.Caching.Microsoft;
 using Kuzgun.Core.Utilities.IoC;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kuzgun.Core.DependencyResolver
@@ -14,6 +15,7 @@ namespace Kuzgun.Core.DependencyResolver
         {
             services.AddMemoryCache();
             services.AddSingleton<ICacheManager, MemoryCacheManager>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
     }
 }

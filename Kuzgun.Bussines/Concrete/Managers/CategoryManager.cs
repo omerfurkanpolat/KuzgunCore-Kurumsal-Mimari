@@ -5,6 +5,7 @@ using System.Text;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
 using Kuzgun.Core.Aspects.Autofac.Transaction;
 using Kuzgun.Core.Aspects.Autofac.Validation;
@@ -19,10 +20,13 @@ namespace Kuzgun.Bussines.Concrete.Managers
     {
         private ICategoryDal _categoryDal;
 
+
         public CategoryManager(ICategoryDal categoryDal)
         {
             _categoryDal = categoryDal;
         }
+
+        [SecuredOperation("admin")]
         [CacheAspect(duration:2)]
         public IDataResult<List<Category>> GetAll()
         {

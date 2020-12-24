@@ -93,15 +93,6 @@ namespace Kuzgun.WebApi
             });
             
 
-
-
-
-
-
-
-
-            
-
             services.AddControllers();
         }
 

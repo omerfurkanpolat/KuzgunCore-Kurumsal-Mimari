@@ -98,10 +98,5 @@ namespace Kuzgun.WebApi.Controllers
 
 
 
-
-
-
-
-
     }
 }
