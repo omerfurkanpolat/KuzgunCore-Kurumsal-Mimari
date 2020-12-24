@@ -8,9 +8,11 @@ using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
 using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
+using Kuzgun.Core.Aspects.Autofac.Logging;
 using Kuzgun.Core.Aspects.Autofac.Performance;
 using Kuzgun.Core.Aspects.Autofac.Transaction;
 using Kuzgun.Core.Aspects.Autofac.Validation;
+using Kuzgun.Core.CrossCuttingConcerns.Logging.Log4net.Loggers;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
@@ -28,8 +30,9 @@ namespace Kuzgun.Bussines.Concrete.Managers
             _categoryDal = categoryDal;
         }
 
-        [SecuredOperation("admin")]
+        //[SecuredOperation("admin")]
         [CacheAspect(duration:2)]
+        [LogAspect(typeof(DatabaseLogger))]
         public IDataResult<List<Category>> GetAll()
         {
             return new SuccessDataResult<List<Category>>(_categoryDal.GetList()); 

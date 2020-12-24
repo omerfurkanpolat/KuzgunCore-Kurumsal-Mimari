@@ -4,14 +4,16 @@ using Kuzgun.DataAccess.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Kuzgun.DataAccess.Migrations
 {
     [DbContext(typeof(KuzgunContext))]
-    partial class KuzgunContextModelSnapshot : ModelSnapshot
+    [Migration("20201224095105_AddLogEntity")]
+    partial class AddLogEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

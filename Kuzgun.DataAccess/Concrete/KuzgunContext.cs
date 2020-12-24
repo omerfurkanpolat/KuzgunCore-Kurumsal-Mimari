@@ -30,6 +30,7 @@ namespace Kuzgun.DataAccess.Concrete
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<PostComment> PostComments { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Log> Logs { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new CategoryMap());
@@ -39,6 +40,7 @@ namespace Kuzgun.DataAccess.Concrete
             builder.ApplyConfiguration(new PostStatMap());
             builder.ApplyConfiguration(new SubCategoryMap());
             builder.ApplyConfiguration(new UserMap());
+            builder.ApplyConfiguration(new LogMap());
 
             base.OnModelCreating(builder);
 
