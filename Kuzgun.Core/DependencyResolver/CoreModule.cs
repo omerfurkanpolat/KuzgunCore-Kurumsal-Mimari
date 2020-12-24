@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Kuzgun.Core.CrossCuttingConcerns.Caching;
 using Kuzgun.Core.CrossCuttingConcerns.Caching.Microsoft;
@@ -16,6 +17,7 @@ namespace Kuzgun.Core.DependencyResolver
             services.AddMemoryCache();
             services.AddSingleton<ICacheManager, MemoryCacheManager>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<Stopwatch>();
         }
     }
 }

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
 using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
+using Kuzgun.Core.Aspects.Autofac.Performance;
 using Kuzgun.Core.Aspects.Autofac.Transaction;
 using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
@@ -32,11 +34,13 @@ namespace Kuzgun.Bussines.Concrete.Managers
         {
             return new SuccessDataResult<List<Category>>(_categoryDal.GetList()); 
         }
-
+        [PerformanceAspect(5)]
         public IDataResult<Category> GetById(int id)
         {
+            
             return new SuccessDataResult<Category>(_categoryDal.Get(c => c.CategoryId == id));  
         }
+
         [ValidationAspect(typeof(CategoryValidator))]
         [CacheRemoveAspect("ICategoryService.Get")]
         public IResult Create(Category entity)
