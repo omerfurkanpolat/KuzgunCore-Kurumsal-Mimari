@@ -21,7 +21,7 @@ namespace Kuzgun.DataAccess.Concrete
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=KuzgunContext;integrated security=true;");
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Initial Catalog=KuzgunContext;Integrated Security=true;");
         }
 
         public DbSet<Post> Posts { get; set; }

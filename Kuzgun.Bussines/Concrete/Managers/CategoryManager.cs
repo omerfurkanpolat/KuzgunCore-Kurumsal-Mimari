@@ -31,8 +31,8 @@ namespace Kuzgun.Bussines.Concrete.Managers
         }
 
         //[SecuredOperation("admin")]
-        [CacheAspect(duration:2)]
-        [LogAspect(typeof(DatabaseLogger))]
+        //[CacheAspect(duration:2)]
+        [LogAspect(typeof(FileLogger))]
         public IDataResult<List<Category>> GetAll()
         {
             return new SuccessDataResult<List<Category>>(_categoryDal.GetList()); 

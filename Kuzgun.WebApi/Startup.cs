@@ -44,7 +44,7 @@ namespace Kuzgun.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KuzgunContext>(x =>
-                x.UseSqlServer(@"server=(localdb)\mssqllocaldb;Database=KuzgunContext; Trusted_Connection=true"));
+                x.UseSqlServer(@"server=(localdb)\mssqllocaldb;Initial Catalog=KuzgunContext;Integrated Security=true;"));
             services.AddIdentity<User, Role>().AddEntityFrameworkStores<KuzgunContext>().AddDefaultTokenProviders();
             ;
             services.Configure<IdentityOptions>(options =>
