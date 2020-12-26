@@ -18,7 +18,7 @@ namespace Kuzgun.Core.Aspects.Autofac.Validation
         {
             if (!typeof(IValidator).IsAssignableFrom(validatorType))
             {
-                throw new Exception(AspectMessages.WrongValidationType);
+                throw new System.Exception(AspectMessages.WrongValidationType);
             }
 
             _validatorType = validatorType;

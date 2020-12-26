@@ -33,7 +33,7 @@ namespace Kuzgun.Core.Aspects.Autofac.Authorization
                     
                 }
             }
-            throw  new Exception(AspectMessages.AuthorizationDenied);
+            throw  new System.Exception(AspectMessages.AuthorizationDenied);
         }
     }
 }

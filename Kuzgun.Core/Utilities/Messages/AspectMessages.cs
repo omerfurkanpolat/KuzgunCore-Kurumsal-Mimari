@@ -9,5 +9,6 @@ namespace Kuzgun.Core.Utilities.Messages
         public static string WrongValidationType = "Yanlış Validasyon Tipi";
         public static string AuthorizationDenied = "Yetkiniz Yok";
         public static string WrongLoggerType = "Yanlış Log tipi";
+        public static string InternalServerError = "Internal Server Error";
     }
 }

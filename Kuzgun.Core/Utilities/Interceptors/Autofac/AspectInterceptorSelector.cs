@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Castle.DynamicProxy;
+using Kuzgun.Core.Aspects.Autofac.Exception;
+using Kuzgun.Core.CrossCuttingConcerns.Logging.Log4net.Loggers;
 
 namespace Kuzgun.Core.Utilities.Interceptors.Autofac
 {
@@ -16,6 +18,8 @@ namespace Kuzgun.Core.Utilities.Interceptors.Autofac
             var methodAttributes = type.GetMethod(method.Name)
                 .GetCustomAttributes<MethodInterceptionBaseAttribute>(true);
             classAttribute.AddRange(methodAttributes);
+            classAttribute.Add(new ExceptionLogAspect(typeof(DatabaseLogger)));
+            classAttribute.Add(new ExceptionLogAspect(typeof(FileLogger)));
 
             return classAttribute.OrderBy(x => x.Priority).ToArray();
 

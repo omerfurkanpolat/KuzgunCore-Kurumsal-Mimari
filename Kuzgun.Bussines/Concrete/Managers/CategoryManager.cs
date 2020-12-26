@@ -8,6 +8,7 @@ using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
 using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
+using Kuzgun.Core.Aspects.Autofac.Exception;
 using Kuzgun.Core.Aspects.Autofac.Logging;
 using Kuzgun.Core.Aspects.Autofac.Performance;
 using Kuzgun.Core.Aspects.Autofac.Transaction;
@@ -30,6 +31,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             _categoryDal = categoryDal;
         }
 
+        
         //[SecuredOperation("admin")]
         //[CacheAspect(duration:2)]
         [LogAspect(typeof(FileLogger))]
