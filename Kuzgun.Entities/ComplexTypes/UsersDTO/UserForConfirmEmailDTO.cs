@@ -8,9 +8,9 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
 {
     public class UserForConfirmEmailDTO : IDto
     {
-        [Required]
+       
         public int UserId { get; set; }
-        [Required]
+    
         public string Code { get; set; }
     }
 }

@@ -22,5 +22,10 @@ namespace Kuzgun.Bussines.Constant
         public static string UserIsDeleted = "Bu Hesaba Erişim Engellenmiştir";
         public static string UserNameOrPasswordWrong = "Kullanıcı Adı ve Şifre Yanlış";
         public static string SendToEmailForResetPassword = "Parolanızı Sıfırlamınız için Email Gönderildi";
+        public static string PasswordChanged = "Paralo Değiştirildi";
+        public static string Error = "Bir Hata Oluştu";
+        public static string UserNotUpdate = "Kullanıcı Güncellenemedi";
+        public static string EmailChanged = "Email Adresi Değiştirildi";
+        public static string ProfilePictureChanged = "Profil Resmi Değiştirildi";
     }
 }

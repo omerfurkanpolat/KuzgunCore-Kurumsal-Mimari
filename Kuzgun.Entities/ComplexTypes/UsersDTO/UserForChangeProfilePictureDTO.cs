@@ -8,7 +8,7 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
 {
     public class UserForChangeProfilePictureDTO : IDto
     {
-        [Required]
+       
         public string ImageUrl { get; set; }
     }
 }

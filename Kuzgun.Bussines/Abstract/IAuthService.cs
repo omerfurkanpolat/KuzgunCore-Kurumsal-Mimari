@@ -18,13 +18,18 @@ namespace Kuzgun.Bussines.Abstract
          Task <IResult> CheckIfEmailExists(string email);
          Task<IResult> CreateRole(string roleName);
          Task<IResult> ConfirmEmail(UserForConfirmEmailDTO userForConfirmEmailDto);
-         Task<IDataResult<User>> CheckByUserId(int id);
-         Task<IDataResult<User>> Login(User user,UserForLoginDTO userForLoginDto);
-         Task<IDataResult<User>> GetUserByUserName(string userName);
+         Task<IDataResult<User>> FindByUserId(int id);
+         Task<IResult> Login(UserForLoginDTO userForLoginDto);
+         Task<IDataResult<User>> FindByUserName(string userName);
          IResult UserIsDeleted(User user);
          IResult IsEmailConfirmed(User user);
          Task<IResult> ForgotPassword(UserForForgotPasswordDTO userForForgotPasswordDto);
-         Task<IDataResult<User>> GetUserByEmail(string email);
+         Task<IDataResult<User>> FindByEmail(string email);
+         Task<IResult> ResetPassword(UserForResetPasswordDTO userForResetPasswordDto);
+         Task<IResult> ChangePassword(UserForChangePasswordDTO userForChangePasswordDto, int id);
+         Task<IDataResult<User>> UpdateUser(User user);
+         Task<IResult> ChangeEmailAddress(UserForChangeEmailDTO userForChangeEmailDto, int id);
+         Task<IResult> ChangeProfilePicture(UserForChangeProfilePictureDTO changeProfilePictureDto, int id);
 
     }
 }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.ValidationRules.FluentValidation.User;
+using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Core.Utilities.Security;
@@ -66,38 +68,21 @@ namespace Kuzgun.WebApi.Controllers
             }
             return BadRequest(result.Message);
         }
+        
 
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserForLoginDTO model)
         {
-            var user = await _authService.GetUserByUserName(model.UserName);
-            if (user == null)
-            {
-                return BadRequest(user.Message);
-            }
 
-            var checkUserDeleted = _authService.UserIsDeleted(user.Data);
-            if (!checkUserDeleted.Success)
-            {
-                return BadRequest(checkUserDeleted.Message);
-            }
-
-            var checkEmailConfirmed = _authService.IsEmailConfirmed(user.Data);
-            if (!checkEmailConfirmed.Success)
-            {
-                return BadRequest(checkEmailConfirmed.Message);
-            }
-
-
-            var signInCheck = await _authService.Login(user.Data, model);
+            var signInCheck = await _authService.Login(model);
             if (!signInCheck.Success)
             {
                 return BadRequest(signInCheck.Message);
 
             }
 
-            var createToken = await _authService.CreateAccessToken(user.Data);
+            var createToken = await _authService.CreateAccessToken(signInCheck.Data);
             if (createToken.Success)
             {
                 return Ok(createToken.Data);
@@ -127,77 +112,61 @@ namespace Kuzgun.WebApi.Controllers
         [Route("resetPassword")]
         public async Task<IActionResult> ResetPassword(UserForResetPasswordDTO model)
         {
-            if (!ModelState.IsValid)
+           
+            var result =await _authService.ResetPassword(model);
+            if (result.Success)
             {
-                return BadRequest(ModelState);
-            }
-            var user = await _userManager.FindByIdAsync(model.UserId.ToString());
-            if (user == null)
-            {
-
-                return BadRequest("Kullanıcı Bulunamadı");
+                return Ok(result.Message);
             }
 
-            var revisedCode = model.Code.Replace(" ", "+");
-            var result = await _userManager.ResetPasswordAsync(user, revisedCode, model.Password);
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-
-            return BadRequest("Bir Hata Oluştu");
+            return BadRequest(result.Success);
         }
 
         [HttpPut]
         [Route("changePassword/{id}")]
         public async Task<IActionResult> ChangePassword(UserForChangePasswordDTO model, int id)
         {
+            var result = await _authService.ChangePassword(model, id);
+            if (result.Success)
+            {
+                return Ok(result.Message);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-            {
-                return BadRequest("Kullanıcı Bulunamadı");
-            }
-            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-            if (result.Succeeded)
-            {
 
-                return Ok();
-            }
-            return BadRequest("Mecvut şifrenizi hatalı girdiniz");
+            return BadRequest(result.Message);
         }
 
         [HttpGet]
         [Route("changeEmail/{id}")]
         public async Task<IActionResult> ChangeEmail(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            
 
-            if (user == null)
+            var result = await _authService.FindByUserId(id);
+            if (result.Success)
             {
-                return BadRequest("Kullanıcı Bulunamadı");
+                //var result = _mapper.Map<UserForChangeEmailDTO>(user);
+                return Ok(result.Data);
             }
-            //var result = _mapper.Map<UserForChangeEmailDTO>(user);
-            return Ok(user);
+
+            return BadRequest(result.Message);
+
+          
         }
 
         [HttpPut]
         [Route("changeEmail/{id}")]
         public async Task<IActionResult> ChangeEmail(UserForChangeEmailDTO model, int id)
         {
+            var result = await _authService.ChangeEmailAddress(model, id);
 
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null || !ModelState.IsValid)
+            if (result.Success)
             {
-                return BadRequest("Email Adresi Değiştirilemedi");
+                return Ok(result.Message);
             }
-            user.Email = model.Email;
-            await _userManager.UpdateAsync(user);
-            return Ok();
+
+            return BadRequest(result.Message);
+
 
         }
 
@@ -205,14 +174,13 @@ namespace Kuzgun.WebApi.Controllers
         [Route("changeProfilePicture/{id}")]
         public async Task<IActionResult> ChangeProfilePicture(UserForChangeProfilePictureDTO model, int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null || !ModelState.IsValid)
+            var result = await _authService.ChangeProfilePicture(model, id);
+            if (result.Success)
             {
-                return BadRequest("Profil Resmi Değiştirilemedi");
+                return Ok(result.Message);
             }
-            user.ImageUrl = model.ImageUrl;
-            await _userManager.UpdateAsync(user);
-            return Ok();
+
+            return BadRequest(result.Message);
         }
 
 

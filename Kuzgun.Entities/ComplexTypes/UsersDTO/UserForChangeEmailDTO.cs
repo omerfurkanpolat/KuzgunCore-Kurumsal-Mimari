@@ -8,10 +8,8 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
 {
     public class UserForChangeEmailDTO : IDto
     {
-        [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
+        
         public string Email { get; set; }
-        public string ImageUrl { get; set; }
+        
     }
 }
