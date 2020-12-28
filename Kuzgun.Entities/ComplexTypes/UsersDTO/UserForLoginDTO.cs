@@ -9,10 +9,10 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
     public class UserForLoginDTO : IDto
     {
 
-        [Required(ErrorMessage = "Kulllanıcı adı alanı boş bırakılamaz")]
+        [Required]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Şifre alanı boş bırakalamaz")]
+        
         [DataType(DataType.Password)]
         [Display(Name = "Şifre")]
         public string Password { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Kuzgun.Core.Entity.Concrete;
 
 namespace Kuzgun.Bussines.Constant
 {
@@ -11,5 +12,15 @@ namespace Kuzgun.Bussines.Constant
         public static string CategoryDeleted = "Kategori Başarıyla Silindi";
         public static string AccessTokenCreated = "Access Token Başarıyla Oluşturuldu";
         public static string AccessTokenNotCreated = "Acces Token Üretilemedi";
+        public static string UserNameAlreadyExists = "Bu kullanıcı adı daha önce kullanılmış";
+        public static string EmailAlreadyExists = "Bu email adresi daha önce kullanılmış";
+        public static string RoleCreated = "Role Oluşturuldu";
+        public static string ConfirmYourEmailAdress = "Email Adresinize Gelen Maili Onaylayınız";
+        public static string UserNotFound = "Kullanıcı Bulunamadı";
+        public static string EmailConfirmed = "Email Adresiniz Onaylandı";
+        public static string EmailNotConfirmed = "Email Adresiniz Onaylanmadı";
+        public static string UserIsDeleted = "Bu Hesaba Erişim Engellenmiştir";
+        public static string UserNameOrPasswordWrong = "Kullanıcı Adı ve Şifre Yanlış";
+        public static string SendToEmailForResetPassword = "Parolanızı Sıfırlamınız için Email Gönderildi";
     }
 }

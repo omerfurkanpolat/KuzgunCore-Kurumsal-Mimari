@@ -24,7 +24,7 @@ namespace Kuzgun.WebApi.Controllers
         private IEmailService _emailService;
         private SignInManager<User> _signInManager;
         private IAuthService _authService;
-        
+
 
         public AccountsController(UserManager<User> userManager, RoleManager<Role> roleManager,
             IEmailService emailService, SignInManager<User> signInManager, IAuthService authService)
@@ -40,118 +40,70 @@ namespace Kuzgun.WebApi.Controllers
         [Route("register")]
         public async Task<IActionResult> Register(UserForRegisterDTO model)
         {
-            if (!ModelState.IsValid)
+
+
+            var result = await _authService.CreateUser(model);
+            if (result.Success)
             {
-                return BadRequest("Eksik Bilgi Doldurdunuz");
+                return Ok(result.Message);
+
             }
 
-            
-            //var uniqeEmailCheck = _userManager.FindByEmailAsync(model.Email);
-            //var uniqueUserNameCheck = _userManager.FindByNameAsync(model.UserName);
-            //if (uniqeEmailCheck != null || uniqueUserNameCheck != null)
-            //{
-            //    return BadRequest("Bu kullanıcı adı veya email adresi daha önce kullamış");
-            //}
+            return BadRequest(result.Message);
 
-            User user = new User
-            {
-                UserName = model.UserName,
-                Email = model.Email,
-                IsDeleted = false
 
-            };
-            
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-            {
-                return BadRequest("Kullanıcı Oluşturulamadı");
-            }
-
-            var role = "user";
-            if (!_roleManager.RoleExistsAsync(role).Result)
-            {
-                var newRole = new Role();
-                newRole.Name = role;
-                await _roleManager.CreateAsync(newRole);
-            }
-
-            await _userManager.AddToRoleAsync(user, role);
-
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var url = "http://localhost:4200/confirmEmail?";
-            var callbackUrl = $"{url}" + $"UserId={user.Id}&" + $"Code={code}";
-
-            _emailService.SendMail(user.UserName, user.Email, "Hesap onaylama maili",
-                $"Hesabınızı onaylamak için lütfen linkle tıklayın: {callbackUrl} ");
-
-            return Ok("Hesabınıza gelen emaili onaylayınız");
         }
 
         [HttpPost]
         [Route("confirmEmail")]
         public async Task<IActionResult> ConfirmEmail(UserForConfirmEmailDTO model)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId.ToString());
-            var code = model.Code.Replace(" ", "+");
-            if (user != null && code != null)
+            var result = await _authService.ConfirmEmail(model);
+            if (result.Success)
             {
-                var result = await _userManager.ConfirmEmailAsync(user, code);
-                if (result.Succeeded)
-                {
-                    return Ok("Email Adresiniz Onayladı");
-                }
+                return Ok(result.Message);
 
-                return BadRequest("Email adresiniz onaylanamadı");
             }
-
-            return BadRequest("Bir hata oluştu");
-
+            return BadRequest(result.Message);
         }
 
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserForLoginDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByNameAsync(model.UserName);
-
+            var user = await _authService.GetUserByUserName(model.UserName);
             if (user == null)
             {
-                return BadRequest("Kullanıcı Bulunamadı");
+                return BadRequest(user.Message);
             }
 
-            if (user.IsDeleted == true)
+            var checkUserDeleted = _authService.UserIsDeleted(user.Data);
+            if (!checkUserDeleted.Success)
             {
-                return BadRequest("Bu hesaba erişim engellenmiştir");
+                return BadRequest(checkUserDeleted.Message);
             }
 
-            if (user.EmailConfirmed == false)
+            var checkEmailConfirmed = _authService.IsEmailConfirmed(user.Data);
+            if (!checkEmailConfirmed.Success)
             {
-                return BadRequest("Email hesabınızı onaylamadan giriş yapamazsınız");
+                return BadRequest(checkEmailConfirmed.Message);
             }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded)
+
+            var signInCheck = await _authService.Login(user.Data, model);
+            if (!signInCheck.Success)
             {
-                return BadRequest("Giriş yapılamadı");
+                return BadRequest(signInCheck.Message);
+
             }
-            user.LastActive = DateTime.Now;
-            await _userManager.UpdateAsync(user);
-            var claims = await _userManager.GetClaimsAsync(user);
-            var createToken= await _authService.CreateAccessToken(user);
+
+            var createToken = await _authService.CreateAccessToken(user.Data);
             if (createToken.Success)
             {
                 return Ok(createToken.Data);
             }
 
-            return BadRequest("Bir hata oluştu");
-
-
-
+            return BadRequest(createToken.Message);
 
 
         }
@@ -160,30 +112,14 @@ namespace Kuzgun.WebApi.Controllers
         [Route("forgotPassword")]
         public async Task<IActionResult> ForgotPassword(UserForForgotPasswordDTO model)
         {
-            if (ModelState.IsValid)
+            
+            var result = await _authService.ForgotPassword(model);
+            if (result.Success)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null)
-                {
-
-                    return BadRequest("Kullanıcı Bulunamadı");
-                }
-
-                if (!(await _userManager.IsEmailConfirmedAsync(user)))
-                {
-                    return BadRequest("Email Adresinizi Onaylayın");
-                }
-
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var url = "http://localhost:4200/resetpassword?";
-                var callbackUrl = $"{url}" + $"UserId={user.Id}&" + $"Code={code}";
-                _emailService.SendMail(user.UserName, user.Email, "Parola Sıfırlama Maili",
-                    $"Parolanızı sıfırlamak için lütfen linkle tıklayın {callbackUrl} ");
-
-                return Ok();
+                return Ok(result.Message);
             }
 
-            return BadRequest(ModelState);
+            return BadRequest(result.Message);
 
         }
 
@@ -267,7 +203,7 @@ namespace Kuzgun.WebApi.Controllers
 
         [HttpPut]
         [Route("changeProfilePicture/{id}")]
-        public async Task<IActionResult> ChangeProfilPicture(UserForChangeProfilePictureDTO model, int id)
+        public async Task<IActionResult> ChangeProfilePicture(UserForChangeProfilePictureDTO model, int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null || !ModelState.IsValid)

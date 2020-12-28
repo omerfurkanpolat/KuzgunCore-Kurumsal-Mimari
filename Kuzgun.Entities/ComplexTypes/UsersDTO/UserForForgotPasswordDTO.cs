@@ -8,7 +8,7 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
 {
     public class UserForForgotPasswordDTO : IDto
     {
-        [Required]
+       
         [EmailAddress]
         public string Email { get; set; }
     }

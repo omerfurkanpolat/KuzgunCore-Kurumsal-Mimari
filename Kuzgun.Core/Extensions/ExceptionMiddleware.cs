@@ -30,22 +30,22 @@ namespace Kuzgun.Core.Extensions
             }
         }
 
-        private  Task HandleExceptionAsync(HttpContext httpContext, Exception e)
+        private Task HandleExceptionAsync(HttpContext httpContext, Exception e)
         {
             httpContext.Response.ContentType = "application/json";
-            httpContext.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-            string message = AspectMessages.InternalServerError;
-            if (e.GetType()==typeof(ValidationException))
+            httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            string message = "Internal Serve Error";
+            if (e.GetType() == typeof(ValidationException))
             {
                 message = e.Message;
             }
 
-           return httpContext.Response.WriteAsync(new ErrorDetails 
-           {
-               StatusCode = httpContext.Response.StatusCode,
-               Message=AspectMessages.InternalServerError
+            return httpContext.Response.WriteAsync(new ErrorDetails
+            {
+                StatusCode = httpContext.Response.StatusCode,
+                Message = message
 
-           }.ToString());
+            }.ToString());
         }
     }
 }

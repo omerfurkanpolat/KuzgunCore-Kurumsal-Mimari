@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Bussines.ValidationRules.FluentValidation.Post;
 using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.DataAccess.Abstract;

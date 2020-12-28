@@ -21,7 +21,7 @@ namespace Kuzgun.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminsController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private ICategoryService _categoryService;
         private ISubCategoryService _subCategoryService;
@@ -29,7 +29,7 @@ namespace Kuzgun.WebApi.Controllers
         private UserManager<User> _userManager;
 
 
-        public AdminsController(ICategoryService categoryService, ISubCategoryService subCategoryService, RoleManager<Role> roleManager, UserManager<User> userManager)
+        public AdminController(ICategoryService categoryService, ISubCategoryService subCategoryService, RoleManager<Role> roleManager, UserManager<User> userManager)
         {
             _categoryService = categoryService;
             _subCategoryService = subCategoryService;

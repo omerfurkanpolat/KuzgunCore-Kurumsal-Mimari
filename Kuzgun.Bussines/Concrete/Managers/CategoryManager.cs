@@ -6,6 +6,7 @@ using System.Threading;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
+using Kuzgun.Bussines.ValidationRules.FluentValidation.Category;
 using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
 using Kuzgun.Core.Aspects.Autofac.Exception;

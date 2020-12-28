@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 using Kuzgun.Core.Entity.Concrete;
 
-namespace Kuzgun.Bussines.ValidationRules.FluentValidation
+namespace Kuzgun.Bussines.ValidationRules.FluentValidation.Post
 {
-    public class PostValidator:AbstractValidator<Post>
+    public class PostValidator:AbstractValidator<Core.Entity.Concrete.Post>
     {
         public PostValidator()
         {

@@ -6,7 +6,6 @@ namespace Kuzgun.Core.Entity.Concrete
     public class Post:IEntity
     {
        
-
         public int PostId { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
