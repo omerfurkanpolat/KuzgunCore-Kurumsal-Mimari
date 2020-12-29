@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using Kuzgun.Core.Utilities.Business;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Entities.Concrete;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
 namespace Kuzgun.Bussines.Concrete.Managers
@@ -42,7 +43,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             var roleList = await _userManager.GetRolesAsync(user);
-            var roles = await ChangeRoleType(roleList.ToList());
+            var roles = await ChangeRoleTypeAsync( roleList.ToList());
 
             var accessToken = _tokenHelper.CreateToken(user, roles);
             if (accessToken == null)
@@ -52,7 +53,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessDataResult<AccessToken>(accessToken, Messages.AccessTokenCreated);
         }
 
-        public async Task<List<Role>> ChangeRoleType(List<string> roleList)
+        public async Task<List<Role>> ChangeRoleTypeAsync(List<string> roleList)
         {
             var roles = new List<Role>();
             var role = new Role();
@@ -66,12 +67,12 @@ namespace Kuzgun.Bussines.Concrete.Managers
         }
         [ValidationAspect(typeof(UserForRegisterDtoValidator))]
         [TransactionScopeAspect]
-        public async Task<IResult> CreateUser(UserForRegisterDTO userForRegisterDto)
+        public async Task<IResult> CreateUserAsync(UserForRegisterDTO userForRegisterDto)
         {
             var roleName = "user";
 
-            IResult result = BusinessRules.Run(await CheckIfUserNameExists(userForRegisterDto.UserName), await CheckIfEmailExists(userForRegisterDto.Email),
-                await CreateRole(roleName));
+            IResult result = BusinessRules.Run(await CheckIfUserNameExistsAsync(userForRegisterDto.UserName), await CheckIfEmailExistsAsync(userForRegisterDto.Email),
+                await CreateRoleAsync(roleName));
 
             if (result != null)
             {
@@ -96,7 +97,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IResult> CheckIfUserNameExists(string userName)
+        public async Task<IResult> CheckIfUserNameExistsAsync(string userName)
         {
             var result = await _userManager.FindByNameAsync(userName);
             if (result != null)
@@ -107,7 +108,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IResult> CheckIfEmailExists(string email)
+        public async Task<IResult> CheckIfEmailExistsAsync(string email)
         {
             var result = await _userManager.FindByEmailAsync(email);
             if (result != null)
@@ -120,7 +121,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IResult> CreateRole(string roleName)
+        public async Task<IResult> CreateRoleAsync(string roleName)
         {
             var result = await _roleManager.RoleExistsAsync(roleName);
 
@@ -137,9 +138,9 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
         [ValidationAspect(typeof(UserForConfirmEmailDToValidator))]
-        public async Task<IResult> ConfirmEmail(UserForConfirmEmailDTO userForConfirmEmailDto)
+        public async Task<IResult> ConfirmEmailAsync(UserForConfirmEmailDTO userForConfirmEmailDto)
         {
-            IDataResult<User> result = BusinessDataRules.Run(await FindByUserId(userForConfirmEmailDto.UserId));
+            IDataResult<User> result = BusinessDataRules.Run(await FindUserByUserIdAsync(userForConfirmEmailDto.UserId));
             var code = userForConfirmEmailDto.Code.Replace(" ", "+");
 
             if (result != null)
@@ -156,7 +157,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IDataResult<User>> FindByUserId(int id)
+        public async Task<IDataResult<User>> FindUserByUserIdAsync(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
@@ -167,33 +168,39 @@ namespace Kuzgun.Bussines.Concrete.Managers
         }
 
         [ValidationAspect(typeof(UserForLoginDtoValidator))]
-        public async Task<IResult> Login(UserForLoginDTO userForLoginDto)
+        public async Task<IDataResult<User>> LoginAsync(UserForLoginDTO userForLoginDto)
         {
-            var user = await FindByUserName(userForLoginDto.UserName);
-            if (!user.Success)
-            {
-                return user;
-            }
+            var result = await FindUserByUserNameAsync(userForLoginDto.UserName);
 
-            IResult result = BusinessRules.Run(IsEmailConfirmed(user.Data),IsEmailConfirmed(user.Data));
-            if (result != null)
+            if (!result.Success)
             {
                 return result;
             }
 
-            var singInAccount = await _signInManager.CheckPasswordSignInAsync(user.Data, userForLoginDto.Password, false);
+            var checkUserDeleted = IsUserDeleted(result.Data);
+            if (!checkUserDeleted.Success)
+            {
+                return checkUserDeleted;
+            }
+            var isEmailConfirmed = IsEmailConfirmed(result.Data);
+            if (!isEmailConfirmed.Success)
+            {
+                return isEmailConfirmed;
+            }
+
+            var singInAccount = await _signInManager.CheckPasswordSignInAsync(result.Data, userForLoginDto.Password, false);
             if (!singInAccount.Succeeded)
             {
                 return new ErrorDataResult<User>(Messages.UserNameOrPasswordWrong);
             }
-            user.Data.LastActive = DateTime.Now;
-            await UpdateUser(user.Data);
+            result.Data.LastActive = DateTime.Now;
+            await UpdateUserAsync(result.Data);
 
-            return new SuccessDataResult<User>(user.Data);
+            return new SuccessDataResult<User>(result.Data);
 
         }
 
-        public async Task<IDataResult<User>> FindByUserName(string userName)
+        public async Task<IDataResult<User>> FindUserByUserNameAsync(string userName)
         {
             var result = await _userManager.FindByNameAsync(userName);
             if (result == null)
@@ -203,28 +210,28 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessDataResult<User>(result);
         }
 
-        public IResult UserIsDeleted(User user)
+        public IDataResult<User> IsUserDeleted(User user)
         {
             if (user.IsDeleted == true)
             {
-                return new ErrorResult(Messages.UserIsDeleted);
+                return new ErrorDataResult<User>(Messages.UserIsDeleted);
             }
-            return new SuccessResult();
+            return new SuccessDataResult<User>();
         }
 
-        public IResult IsEmailConfirmed(User user)
+        public IDataResult<User> IsEmailConfirmed(User user)
         {
             if (user.EmailConfirmed == true)
             {
-                return new SuccessResult();
+                return new SuccessDataResult<User>();
             }
-            return new ErrorResult(Messages.EmailNotConfirmed);
+            return new ErrorDataResult<User>(Messages.EmailNotConfirmed);
         }
 
         [ValidationAspect(typeof(UserForForgotPasswordDtoValidator))]
-        public async Task<IResult> ForgotPassword(UserForForgotPasswordDTO userForForgotPasswordDto)
+        public async Task<IResult> ForgotPasswordAsync(UserForForgotPasswordDTO userForForgotPasswordDto)
         {
-            var user = await FindByEmail(userForForgotPasswordDto.Email);
+            var user = await FindUserByEmailAsync(userForForgotPasswordDto.Email);
             if (!user.Success)
             {
                 return user;
@@ -244,7 +251,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IDataResult<User>> FindByEmail(string email)
+        public async Task<IDataResult<User>> FindUserByEmailAsync(string email)
         {
             var result = await _userManager.FindByEmailAsync(email);
             if (result == null)
@@ -255,9 +262,9 @@ namespace Kuzgun.Bussines.Concrete.Managers
         }
 
         [ValidationAspect(typeof(UserForResetPasswordDTO))]
-        public async Task<IResult> ResetPassword(UserForResetPasswordDTO userForResetPasswordDto)
+        public async Task<IResult> ResetPasswordAsync(UserForResetPasswordDTO userForResetPasswordDto)
         {
-            IDataResult<User> user = await FindByUserId(userForResetPasswordDto.UserId);
+            IDataResult<User> user = await FindUserByUserIdAsync(userForResetPasswordDto.UserId);
             if (!user.Success)
             {
                 return user;
@@ -272,9 +279,9 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         }
 
-        public async Task<IResult> ChangePassword(UserForChangePasswordDTO userForChangePasswordDto, int id)
+        public async Task<IResult> ChangePasswordAsync(UserForChangePasswordDTO userForChangePasswordDto, int id)
         {
-            IDataResult<User> user = await FindByUserId(id);
+            IDataResult<User> user = await FindUserByUserIdAsync(id);
             if (!user.Success)
             {
                 return user;
@@ -289,7 +296,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new ErrorResult(Messages.Error);
         }
 
-        public async Task<IDataResult<User>> UpdateUser(User user)
+        public async Task<IDataResult<User>> UpdateUserAsync(User user)
         {
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
@@ -300,16 +307,16 @@ namespace Kuzgun.Bussines.Concrete.Managers
         }
 
         [ValidationAspect(typeof(UserForChangeEmailDtoValidator))]
-        public async Task<IResult> ChangeEmailAddress(UserForChangeEmailDTO userForChangeEmailDto, int id)
+        public async Task<IResult> ChangeEmailAddressAsync(UserForChangeEmailDTO userForChangeEmailDto, int id)
         {
-            var user = await FindByUserId(id);
+            var user = await FindUserByUserIdAsync(id);
             if (!user.Success)
             {
                 return user;
             }
 
             user.Data.Email = userForChangeEmailDto.Email;
-            var result = await UpdateUser(user.Data);
+            var result = await UpdateUserAsync(user.Data);
             if (result.Success)
             {
                 return new SuccessResult(Messages.EmailChanged);
@@ -317,20 +324,129 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new ErrorResult(Messages.Error);
         }
 
-        public async Task<IResult> ChangeProfilePicture(UserForChangeProfilePictureDTO changeProfilePictureDto, int id)
+        public async Task<IResult> ChangeProfilePictureAsync(UserForChangeProfilePictureDTO changeProfilePictureDto, int id)
         {
-            var user = await FindByUserId(id);
+            var user = await FindUserByUserIdAsync(id);
             if (!user.Success)
             {
                 return user;
             }
             user.Data.ImageUrl = changeProfilePictureDto.ImageUrl;
-            var result = await UpdateUser(user.Data);
+            var result = await UpdateUserAsync(user.Data);
             if (result.Success)
             {
                 return new SuccessResult(Messages.ProfilePictureChanged);
             }
             return new ErrorResult(Messages.Error);
+        }
+
+        public IDataResult<List<Role>> GetRoles()
+        {
+            var roles = _roleManager.Roles.ToList();
+            if (roles == null)
+            {
+                return new ErrorDataResult<List<Role>>(Messages.RolesNotFound);
+            }
+            return new SuccessDataResult<List<Role>>(roles);
+        }
+
+        public async Task<IDataResult<Role>> FindRoleByIdAsync(int roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId.ToString());
+            if (role == null)
+            {
+                return new ErrorDataResult<Role>(Messages.RoleNotFound);
+            }
+            return new SuccessDataResult<Role>(role);
+        }
+
+        public async Task<IResult> UpdateRoleAsync(Role role)
+        {
+            var result = await _roleManager.UpdateAsync(role);
+            if (result.Succeeded)
+            {
+                return new SuccessResult(Messages.RoleUpdated);
+            }
+            return new ErrorResult(Messages.Error);
+        }
+
+        public async Task<IResult> DeleteRoleAsync(Role role)
+        {
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
+            {
+                return new SuccessResult(Messages.RoleDeleted);
+            }
+            return new ErrorResult(Messages.Error);
+        }
+
+        public async Task<IResult> ChangeUserRoleAsync(User user, string userRole)
+        {
+            var getUserRoles = await GetUserRolesAsync(user);
+            if (!getUserRoles.Success)
+            {
+                return new ErrorDataResult<Role>(getUserRoles.Message);
+            }
+            IResult result = BusinessRules.Run(await RemoveUserRoleAsync(user,getUserRoles.Data),await AddToRoleAsync(user,userRole));
+
+            if (result != null)
+            {
+                return result;
+            }
+            return new SuccessResult(Messages.UserRoleChanged);
+
+        }
+
+        public async Task<IResult> AddToRoleAsync(User user, string roleName)
+        {
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            if (result.Succeeded)
+            {
+                return new SuccessResult(Messages.RoleAddToUser);
+            }
+            return new ErrorResult(Messages.RoleNotAddToUser);
+        }
+
+        public async Task<IDataResult<List<string>>> GetUserRolesAsync(User user)
+        {
+            var result = await _userManager.GetRolesAsync(user);
+            
+            if (result== null)
+            {
+                return new ErrorDataResult<List<string>>(Messages.UserRolesNotFound);
+            }
+            return new SuccessDataResult<List<string>>(result.ToList());
+        }
+
+        public async Task<IResult> RemoveUserRoleAsync(User user, List<string> userRoles)
+        {
+            var result = await _userManager.RemoveFromRolesAsync(user, userRoles);
+            if (result.Succeeded)
+            {
+                return new SuccessResult(Messages.UserRolesRemove);
+            }
+            return new ErrorResult(Messages.Error);
+        }
+
+        public async Task<IDataResult<List<User>>> GetUsersAsync()
+        {
+            var result = await _userManager.Users.ToListAsync();
+            if (result==null)
+            {
+                return new ErrorDataResult<List<User>>(Messages.UsersNotFound);
+            }
+            return new SuccessDataResult<List<User>>(result);
+        }
+
+        public async Task<IDataResult<string>> GetUserRoleAsync(User user)
+        {
+            var result = await _userManager.GetRolesAsync(user);
+            if (result!=null)
+            {
+                var role = result.FirstOrDefault();
+                return new SuccessDataResult<string>(role);
+            }
+            return new ErrorDataResult<string>(Messages.RoleNotFound);
         }
     }
 }

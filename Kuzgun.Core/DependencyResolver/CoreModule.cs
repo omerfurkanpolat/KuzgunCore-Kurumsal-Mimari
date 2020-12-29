@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using AutoMapper;
 using Kuzgun.Core.CrossCuttingConcerns.Caching;
 using Kuzgun.Core.CrossCuttingConcerns.Caching.Microsoft;
 using Kuzgun.Core.Utilities.IoC;
@@ -18,6 +19,7 @@ namespace Kuzgun.Core.DependencyResolver
             services.AddSingleton<ICacheManager, MemoryCacheManager>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<Stopwatch>();
+            
         }
     }
 }

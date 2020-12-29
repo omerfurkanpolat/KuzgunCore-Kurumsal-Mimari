@@ -18,6 +18,7 @@ using Kuzgun.Core.CrossCuttingConcerns.Logging.Log4net.Loggers;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
+using Kuzgun.Entities.ComplexTypes.CategoriesDTO;
 using Kuzgun.Entities.Concrete;
 
 namespace Kuzgun.Bussines.Concrete.Managers
@@ -51,6 +52,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
         [CacheRemoveAspect("ICategoryService.Get")]
         public IResult Create(Category entity)
         {
+            
             _categoryDal.Add(entity);
             return new SuccessResult(Messages.CategoryAdded); 
         }
@@ -72,6 +74,12 @@ namespace Kuzgun.Bussines.Concrete.Managers
         public IDataResult<List<int>> GetCategoriesId()
         {
             return new SuccessDataResult<List<int>>(_categoryDal.GetList().Select(c => c.CategoryId).ToList()); 
+        }
+
+        public IDataResult<List<Category>> GetActiveCategories()
+        {
+            
+            return new SuccessDataResult<List<Category>>(_categoryDal.GetList(c => c.IsDeleted == false));
         }
     }
 }

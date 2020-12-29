@@ -27,5 +27,18 @@ namespace Kuzgun.Bussines.Constant
         public static string UserNotUpdate = "Kullanıcı Güncellenemedi";
         public static string EmailChanged = "Email Adresi Değiştirildi";
         public static string ProfilePictureChanged = "Profil Resmi Değiştirildi";
+        public static string SubCategoryCreated = "Alt Kategori Oluşturuldu";
+        public static string SubCategoryUpdated = "Alt Kategory Güncellendi";
+        public static string SubCategoryDeleted = "Alt Kategori Silindi";
+        public static string RoleNotFound = "Rol Bulunamadı";
+        public static string RoleUpdated = "Rol Güncellendi";
+        public static string RolesNotFound = "Roller Bulunamadı";
+        public static string RoleDeleted = "Rol Silindi";
+        public static string RoleAddToUser = "Rol Eklendi";
+        public static string RoleNotAddToUser = "Kullanıcının Rolü Eklenemedi";
+        public static string UserRolesNotFound = "Kullanıcının Rolleri Bulunamadı";
+        public static string UserRolesRemove = "Kullanıcının Rolleri Kaldırıldı";
+        public static string UserRoleChanged = "Kullanıcın Rolü Değiştirildi";
+        public static string UsersNotFound = "Kullanıcılar Bulunamadı";
     }
 }

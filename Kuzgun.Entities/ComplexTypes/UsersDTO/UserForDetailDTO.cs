@@ -16,3 +16,4 @@ namespace Kuzgun.Entities.ComplexTypes.UsersDTO
         public string UserRole { get; set; }
     }
 }
+ 

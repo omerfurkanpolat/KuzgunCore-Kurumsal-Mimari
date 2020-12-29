@@ -15,5 +15,6 @@ namespace Kuzgun.Bussines.Abstract
         IResult Update(Category entity);
         IResult Delete(Category entity);
         IDataResult<List<int>> GetCategoriesId();
+        IDataResult<List<Category>> GetActiveCategories();
     }
 }

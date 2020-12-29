@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
 using Kuzgun.Core.DependencyResolver;
@@ -62,6 +63,7 @@ namespace Kuzgun.WebApi
 
 
             });
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddCors(options =>
             {

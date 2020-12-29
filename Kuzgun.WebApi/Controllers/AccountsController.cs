@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.ValidationRules.FluentValidation.User;
 using Kuzgun.Core.Aspects.Autofac.Validation;
@@ -21,50 +22,37 @@ namespace Kuzgun.WebApi.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private UserManager<User> _userManager;
-        private RoleManager<Role> _roleManager;
-        private IEmailService _emailService;
-        private SignInManager<User> _signInManager;
+       
         private IAuthService _authService;
+        private IMapper _mapper;
 
 
-        public AccountsController(UserManager<User> userManager, RoleManager<Role> roleManager,
-            IEmailService emailService, SignInManager<User> signInManager, IAuthService authService)
+        public AccountsController( IAuthService authService, IMapper mapper)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _emailService = emailService;
-            _signInManager = signInManager;
             _authService = authService;
+            _mapper = mapper;
         }
 
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register(UserForRegisterDTO model)
         {
-
-
-            var result = await _authService.CreateUser(model);
+            var result = await _authService.CreateUserAsync(model);
             if (result.Success)
             {
                 return Ok(result.Message);
-
             }
-
             return BadRequest(result.Message);
-
-
         }
 
         [HttpPost]
         [Route("confirmEmail")]
         public async Task<IActionResult> ConfirmEmail(UserForConfirmEmailDTO model)
         {
-            var result = await _authService.ConfirmEmail(model);
+            var result = await _authService.ConfirmEmailAsync(model);
             if (result.Success)
             {
                 return Ok(result.Message);
-
             }
             return BadRequest(result.Message);
         }
@@ -75,7 +63,7 @@ namespace Kuzgun.WebApi.Controllers
         public async Task<IActionResult> Login(UserForLoginDTO model)
         {
 
-            var signInCheck = await _authService.Login(model);
+            var signInCheck = await _authService.LoginAsync(model);
             if (!signInCheck.Success)
             {
                 return BadRequest(signInCheck.Message);
@@ -98,7 +86,7 @@ namespace Kuzgun.WebApi.Controllers
         public async Task<IActionResult> ForgotPassword(UserForForgotPasswordDTO model)
         {
             
-            var result = await _authService.ForgotPassword(model);
+            var result = await _authService.ForgotPasswordAsync(model);
             if (result.Success)
             {
                 return Ok(result.Message);
@@ -113,7 +101,7 @@ namespace Kuzgun.WebApi.Controllers
         public async Task<IActionResult> ResetPassword(UserForResetPasswordDTO model)
         {
            
-            var result =await _authService.ResetPassword(model);
+            var result =await _authService.ResetPasswordAsync(model);
             if (result.Success)
             {
                 return Ok(result.Message);
@@ -126,7 +114,7 @@ namespace Kuzgun.WebApi.Controllers
         [Route("changePassword/{id}")]
         public async Task<IActionResult> ChangePassword(UserForChangePasswordDTO model, int id)
         {
-            var result = await _authService.ChangePassword(model, id);
+            var result = await _authService.ChangePasswordAsync(model, id);
             if (result.Success)
             {
                 return Ok(result.Message);
@@ -140,25 +128,22 @@ namespace Kuzgun.WebApi.Controllers
         [Route("changeEmail/{id}")]
         public async Task<IActionResult> ChangeEmail(int id)
         {
-            
-
-            var result = await _authService.FindByUserId(id);
+            var result = await _authService.FindUserByUserIdAsync(id);
             if (result.Success)
             {
-                //var result = _mapper.Map<UserForChangeEmailDTO>(user);
-                return Ok(result.Data);
+                var user = _mapper.Map<UserForChangeEmailDTO>(result.Data);
+                return Ok(user);
             }
 
             return BadRequest(result.Message);
 
-          
         }
 
         [HttpPut]
         [Route("changeEmail/{id}")]
         public async Task<IActionResult> ChangeEmail(UserForChangeEmailDTO model, int id)
         {
-            var result = await _authService.ChangeEmailAddress(model, id);
+            var result = await _authService.ChangeEmailAddressAsync(model, id);
 
             if (result.Success)
             {
@@ -167,14 +152,13 @@ namespace Kuzgun.WebApi.Controllers
 
             return BadRequest(result.Message);
 
-
         }
 
         [HttpPut]
         [Route("changeProfilePicture/{id}")]
         public async Task<IActionResult> ChangeProfilePicture(UserForChangeProfilePictureDTO model, int id)
         {
-            var result = await _authService.ChangeProfilePicture(model, id);
+            var result = await _authService.ChangeProfilePictureAsync(model, id);
             if (result.Success)
             {
                 return Ok(result.Message);

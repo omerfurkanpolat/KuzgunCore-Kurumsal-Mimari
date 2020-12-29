@@ -12,24 +12,34 @@ namespace Kuzgun.Bussines.Abstract
     public interface IAuthService
     {
          Task<IDataResult<AccessToken>> CreateAccessToken(User user);
-         Task<List<Role>> ChangeRoleType( List<string> roleList);
-         Task<IResult> CreateUser( UserForRegisterDTO userForRegisterDto);
-         Task<IResult> CheckIfUserNameExists(string userName);
-         Task <IResult> CheckIfEmailExists(string email);
-         Task<IResult> CreateRole(string roleName);
-         Task<IResult> ConfirmEmail(UserForConfirmEmailDTO userForConfirmEmailDto);
-         Task<IDataResult<User>> FindByUserId(int id);
-         Task<IResult> Login(UserForLoginDTO userForLoginDto);
-         Task<IDataResult<User>> FindByUserName(string userName);
-         IResult UserIsDeleted(User user);
-         IResult IsEmailConfirmed(User user);
-         Task<IResult> ForgotPassword(UserForForgotPasswordDTO userForForgotPasswordDto);
-         Task<IDataResult<User>> FindByEmail(string email);
-         Task<IResult> ResetPassword(UserForResetPasswordDTO userForResetPasswordDto);
-         Task<IResult> ChangePassword(UserForChangePasswordDTO userForChangePasswordDto, int id);
-         Task<IDataResult<User>> UpdateUser(User user);
-         Task<IResult> ChangeEmailAddress(UserForChangeEmailDTO userForChangeEmailDto, int id);
-         Task<IResult> ChangeProfilePicture(UserForChangeProfilePictureDTO changeProfilePictureDto, int id);
+         Task<List<Role>> ChangeRoleTypeAsync( List<string> roleList);
+         Task<IResult> CreateUserAsync( UserForRegisterDTO userForRegisterDto);
+         Task<IResult> CheckIfUserNameExistsAsync(string userName);
+         Task <IResult> CheckIfEmailExistsAsync(string email);
+         Task<IResult> CreateRoleAsync(string roleName);
+         Task<IResult> ConfirmEmailAsync(UserForConfirmEmailDTO userForConfirmEmailDto);
+         Task<IDataResult<User>> FindUserByUserIdAsync(int id);
+         Task<IDataResult<User>> LoginAsync(UserForLoginDTO userForLoginDto);
+         Task<IDataResult<User>> FindUserByUserNameAsync(string userName);
+         IDataResult<User> IsUserDeleted(User user);
+         IDataResult<User> IsEmailConfirmed(User user);
+         Task<IResult> ForgotPasswordAsync(UserForForgotPasswordDTO userForForgotPasswordDto);
+         Task<IDataResult<User>> FindUserByEmailAsync(string email);
+         Task<IResult> ResetPasswordAsync(UserForResetPasswordDTO userForResetPasswordDto);
+         Task<IResult> ChangePasswordAsync(UserForChangePasswordDTO userForChangePasswordDto, int id);
+         Task<IDataResult<User>> UpdateUserAsync(User user);
+         Task<IResult> ChangeEmailAddressAsync(UserForChangeEmailDTO userForChangeEmailDto, int id);
+         Task<IResult> ChangeProfilePictureAsync(UserForChangeProfilePictureDTO changeProfilePictureDto, int id);
+         IDataResult<List<Role>> GetRoles();
+         Task<IDataResult<Role>> FindRoleByIdAsync(int roleId);
+         Task<IResult> UpdateRoleAsync(Role role);
+         Task<IResult> DeleteRoleAsync(Role role);
+         Task<IResult> ChangeUserRoleAsync(User user, string userRole);
+         Task<IResult> AddToRoleAsync(User user, string roleName);
+         Task<IDataResult<List<string>>> GetUserRolesAsync(User user);
+         Task<IResult> RemoveUserRoleAsync(User user, List<string> userRoles);
+         Task<IDataResult<List<User>>> GetUsersAsync();
+         Task<IDataResult<string>> GetUserRoleAsync(User user);
 
     }
 }

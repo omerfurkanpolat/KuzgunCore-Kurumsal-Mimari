@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
 using Kuzgun.Core.Entity.Concrete;
@@ -27,14 +28,18 @@ namespace Kuzgun.WebApi.Controllers
         private ISubCategoryService _subCategoryService;
         private RoleManager<Role> _roleManager;
         private UserManager<User> _userManager;
+        private IMapper _mapper;
+        private IAuthService _authService;
 
 
-        public AdminController(ICategoryService categoryService, ISubCategoryService subCategoryService, RoleManager<Role> roleManager, UserManager<User> userManager)
+        public AdminController(ICategoryService categoryService, ISubCategoryService subCategoryService, RoleManager<Role> roleManager, UserManager<User> userManager, IMapper mapper, IAuthService authService)
         {
             _categoryService = categoryService;
             _subCategoryService = subCategoryService;
             _roleManager = roleManager;
             _userManager = userManager;
+            _mapper = mapper;
+            _authService = authService;
         }
         
         [HttpGet]
@@ -42,15 +47,15 @@ namespace Kuzgun.WebApi.Controllers
 
         public IActionResult GetCategories()
         {
-
             var categories = _categoryService.GetAll();
-            //var result = _mapper.Map<IEnumerable<CategoryForReturnDTO>>(categories);
-            if (categories != null)
+            
+            if (categories.Success)
             {
-                return Ok(categories);
+                var result = _mapper.Map<IEnumerable<CategoryForReturnDTO>>(categories.Data);
+                return Ok(result);
             }
 
-            return BadRequest("Kategoriler Getirilemedi");
+            return BadRequest(categories.Message);
 
         }
         
@@ -58,21 +63,18 @@ namespace Kuzgun.WebApi.Controllers
         [Route("createCategory")]
         public IActionResult CreateCategory(CategoryForCreationDTO model)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest("Eksik ya da hatalı bilgi girdiniz");
-            //}
-
             var category = new Category
             {
                 CategoryName = model.CategoryName,
                 DateCreated = DateTime.Now,
                 IsDeleted = false
-
-
             };
-            _categoryService.Create(category);
-            return Ok();
+            var result= _categoryService.Create(category);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+            return BadRequest(result.Message);
 
         }
 
@@ -82,14 +84,12 @@ namespace Kuzgun.WebApi.Controllers
         {
 
             var category = _categoryService.GetById(id);
-            if (category == null)
+            if (category.Success)
             {
-                return BadRequest("Kategori bulunamadı");
+                return BadRequest(category.Message);
             }
-
-            //var result = _mapper.Map<CategoryForReturnDTO>(category);
-
-            return Ok(category);
+            var result = _mapper.Map<CategoryForReturnDTO>(category.Data);
+            return Ok(result);
 
         }
 
@@ -102,9 +102,11 @@ namespace Kuzgun.WebApi.Controllers
             //    return BadRequest("Eksik veya hatalı bilgi gönderdiniz");
             //}
             var category = _categoryService.GetById(id);
+            if (!category.Success)
+            {
+                return BadRequest(category.Message);
+            }
             category.Data.CategoryName = model.CategoryName;
-
-
             _categoryService.Update(category.Data);
             return Ok();
 
@@ -115,14 +117,14 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult DeleteCategory(int id)
         {
             var category = _categoryService.GetById(id);
-            category.Data.IsDeleted = true;
-            if (category != null)
+            if (!category.Success)
             {
-                _categoryService.Update(category.Data);
-                return Ok("Kategori pasif hale getirildi");
-            };
+                return BadRequest(category.Message);
+            }
+            category.Data.IsDeleted = true;
+            return Ok(category.Message);
 
-            return BadRequest("Kategori Bulunamadı");
+            
 
         }
         [HttpPut]
@@ -130,14 +132,13 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult ReviveCategory(int id)
         {
             var category = _categoryService.GetById(id);
-            category.Data.IsDeleted = false;
-            if (category != null)
+            if (!category.Success)
             {
-                _categoryService.Update(category.Data);
-                return Ok("Kategori aktif hale getirildi");
-            };
-
-            return BadRequest("Kategori Bulunamadı");
+                return BadRequest(category.Message);
+            }
+            category.Data.IsDeleted = false;
+            _categoryService.Update(category.Data);
+            return Ok(category.Message);
 
         }
 
@@ -145,14 +146,14 @@ namespace Kuzgun.WebApi.Controllers
         [Route("getCategories/{id}/GetSubCategories")]
         public IActionResult GetSubCategories(int id)
         {
-
-            var subcategories = _subCategoryService.GetAll().Where(s => s.CategoryId == id);
-            if (subcategories != null)
+            var subCategories = _subCategoryService.GetSubCategoriesByCategoryId(id);
+            if (subCategories.Success)
             {
-                //var result = _mapper.Map<IEnumerable<SubCategoryForReturnDTO>>(subcategories);
-                return Ok(subcategories);
-            };
-            return BadRequest("Alt kategori bulunamadı");
+                var result = _mapper.Map<IEnumerable<SubCategoryForReturnDTO>>(subCategories.Data);
+                return Ok(result);
+            }
+           
+            return BadRequest(subCategories.Message);
 
         }
 
@@ -182,12 +183,12 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult GetSubCategory(int id)
         {
             var subCategory = _subCategoryService.GetById(id);
-            if (subCategory == null)
+            if (!subCategory.Success)
             {
-                return BadRequest("Kategori bulunamadı");
+                return BadRequest(subCategory.Message);
             }
-            //var result = _mapper.Map<SubCategoryForReturnDTO>(subCategory);
-            return Ok(subCategory);
+            var result = _mapper.Map<SubCategoryForReturnDTO>(subCategory);
+            return Ok(result);
 
         }
 
@@ -196,17 +197,17 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult UpdateSubCategory(SubCategoryForUpdateDTO model, int id)
         {
             var subCategory = _subCategoryService.GetById(id);
-            if (subCategory == null)
+            if (subCategory.Success)
             {
-                return BadRequest("Alt kategori bulunamadı");
+                subCategory.Data.SubCategoryName = model.SubCategoryName;
+
+                _subCategoryService.Update(subCategory.Data);
+                return Ok(subCategory.Message);
             }
-            subCategory.SubCategoryName = model.SubCategoryName;
-            if (ModelState.IsValid)
-            {
-                _subCategoryService.Update(subCategory);
-                return Ok();
-            }
-            return BadRequest("Alt kategori güncellenemedi");
+            
+            return BadRequest(subCategory.Message);
+
+
 
         }
 
@@ -215,15 +216,15 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult DeleteSubCategory(int id)
         {
             var subCategory = _subCategoryService.GetById(id);
-            subCategory.IsDeleted = true;
-
-            if (subCategory != null)
+            if (subCategory.Success)
             {
-                _subCategoryService.Update(subCategory);
-                return Ok("Kategori pasif hale getirildi");
-            };
+                subCategory.Data.IsDeleted = true;
+                _subCategoryService.Update(subCategory.Data);
+                return Ok(subCategory.Message);
+                
+            }
+            return BadRequest(subCategory.Message);
 
-            return BadRequest("Kategori Bulunamadı");
 
         }
 
@@ -232,15 +233,13 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult ReviveSubCategory(int id)
         {
             var subCategory = _subCategoryService.GetById(id);
-            subCategory.IsDeleted = false;
-
-            if (subCategory != null)
+            if (subCategory.Success)
             {
-                _subCategoryService.Update(subCategory);
-                return Ok("Kategori aktif hale getirildi");
-            };
+                subCategory.Data.IsDeleted = false;
+                return Ok(subCategory.Message);
+            }
 
-            return BadRequest("Kategori Bulunamadı");
+            return BadRequest(subCategory.Message);
 
         }
 
@@ -249,13 +248,14 @@ namespace Kuzgun.WebApi.Controllers
         [Route("getRoles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _roleManager.Roles.ToListAsync();
-            if (roles == null)
+            var roles = _authService.GetRoles();
+            
+            if (roles.Success)
             {
-                return BadRequest("Roller Bulunamadı");
+                return Ok(roles.Data);
             }
-
-            return Ok(roles);
+            return BadRequest("Roller Bulunamadı");
+            
         }
 
         [HttpPost]
@@ -266,15 +266,14 @@ namespace Kuzgun.WebApi.Controllers
             {
                 return BadRequest("Eksik veya hatalı bilgi girdiniz");
             }
-            Role role = new Role();
-            role.Name = model.Name.ToLower();
 
-            var roleAdd = await _roleManager.CreateAsync(role);
-            if (!roleAdd.Succeeded)
+            var addRole =await _authService.CreateRoleAsync(model.Name.ToLower());
+            if (addRole.Success)
             {
-                return BadRequest("Rol oluşturulamadı");
+                Ok(addRole.Message);
             }
-            return Ok();
+
+            return BadRequest(addRole.Message);
 
 
         }
@@ -286,13 +285,22 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (ModelState.IsValid)
             {
-                return BadRequest("Eksisk veya hatalı bilgi girdiniz");
+                return BadRequest("Eksik veya hatalı bilgi girdiniz");
             }
-            var role = await _roleManager.FindByIdAsync(id.ToString());
-            role.Name = model.Name;
-            await _roleManager.UpdateAsync(role);
-            return Ok("Rol başarıyla güncellendi");
 
+            var role =await _authService.FindRoleByIdAsync(id);
+            if (!role.Success)
+            {
+                return BadRequest(role.Message);
+            }
+            role.Data.Name= model.Name;
+            var result = await _authService.UpdateRoleAsync(role.Data);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+
+            return BadRequest(result.Message);
         }
 
 
@@ -302,17 +310,22 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (id > 0)
             {
-                var role = await _roleManager.FindByIdAsync(id.ToString());
-                if (role == null)
+                var role = await _authService.FindRoleByIdAsync(id);
+                if (!role.Success)
                 {
-                    return BadRequest("Rol Bulunamadı");
+                    return BadRequest(role.Message);
+                }
+                var result = await _authService.DeleteRoleAsync(role.Data);
+                if (result.Success)
+                {
+                    return Ok(result.Message);
                 }
 
-                var result = await _roleManager.DeleteAsync(role);
+                return BadRequest(result.Message);
 
-                return Ok();
             }
             return BadRequest("Rol bilgisi alınamadı");
+
 
         }
 
@@ -323,36 +336,36 @@ namespace Kuzgun.WebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Rol ismi alınamadı");
 
-
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            try
+            var user = await _authService.FindUserByUserIdAsync(userId);
+            if (!user.Success)
             {
-                await _userManager.RemoveFromRolesAsync(user, userRoles);
-                await _userManager.AddToRoleAsync(user, model.Name);
-
-            }
-            catch (Exception)
-            {
-
-                throw;
+                return BadRequest(user.Message);
             }
 
-            return Ok();
+            var userRole = model.Name;
+            var result =await _authService.ChangeUserRoleAsync(user.Data,userRole);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+
+            return BadRequest(result.Message);
+
         }
 
         [HttpGet]
         [Route("getUsers")]
         public async Task<IActionResult> GetUserList()
         {
-            var users = await _userManager.Users.ToListAsync();
-            if (users == null)
+            var result = await _authService.GetUsersAsync();
+            if (result.Success)
             {
-                return BadRequest("Kullanıcılar Getirilemedi");
+                var users= _mapper.Map<IEnumerable<UserForDetailDTO>>(result.Data);
+                return Ok(users);
             }
-            //var result = _mapper.Map<IEnumerable<UserForDetailDTO>>(users);
-            return Ok(users);
+
+            return BadRequest(result.Message);
+
         }
 
         [HttpGet]
@@ -361,10 +374,22 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (id > 0)
             {
-                var user = await _userManager.FindByIdAsync(id.ToString());
-                var userRole = await _userManager.GetRolesAsync(user);
-                //var result = _mapper.Map<UserForDetailDTO>(user);
-                //result.UserRole = userRole.FirstOrDefault();
+                var result = await _authService.FindUserByUserIdAsync(id);
+                if (!result.Success)
+                {
+                    return BadRequest(result.Message);
+                }
+
+                var role = await _authService.GetUserRoleAsync(result.Data);
+                if (!role.Success)
+                {
+                    return BadRequest(role.Message);
+                }
+
+               
+                var userRole = await _userManager.GetRolesAsync(result.Data);
+                var user = _mapper.Map<UserForDetailDTO>(result.Data);
+                user.UserRole = role.Data;
 
                 return Ok(user);
             }
