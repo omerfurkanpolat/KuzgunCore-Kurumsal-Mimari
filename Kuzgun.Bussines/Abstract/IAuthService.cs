@@ -40,6 +40,8 @@ namespace Kuzgun.Bussines.Abstract
          Task<IResult> RemoveUserRoleAsync(User user, List<string> userRoles);
          Task<IDataResult<List<User>>> GetUsersAsync();
          Task<IDataResult<string>> GetUserRoleAsync(User user);
+         Task<IDataResult<User>> DeleteUserAsync(int id);
+         Task<IDataResult<User>> ReviveUserAsync(int id);
 
     }
 }

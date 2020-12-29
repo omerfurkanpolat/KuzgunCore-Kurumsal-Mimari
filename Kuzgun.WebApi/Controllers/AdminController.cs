@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Concrete.Managers;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes;
 using Kuzgun.Entities.ComplexTypes.CategoriesDTO;
@@ -14,6 +15,7 @@ using Kuzgun.Entities.ComplexTypes.RolesDTO;
 using Kuzgun.Entities.ComplexTypes.SubCategoriesDTO;
 using Kuzgun.Entities.ComplexTypes.UsersDTO;
 using Kuzgun.Entities.Concrete;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,18 +28,17 @@ namespace Kuzgun.WebApi.Controllers
     {
         private ICategoryService _categoryService;
         private ISubCategoryService _subCategoryService;
-        private RoleManager<Role> _roleManager;
-        private UserManager<User> _userManager;
+        
+      
         private IMapper _mapper;
         private IAuthService _authService;
 
 
-        public AdminController(ICategoryService categoryService, ISubCategoryService subCategoryService, RoleManager<Role> roleManager, UserManager<User> userManager, IMapper mapper, IAuthService authService)
+        public AdminController(ICategoryService categoryService, ISubCategoryService subCategoryService,  IMapper mapper, IAuthService authService)
         {
             _categoryService = categoryService;
             _subCategoryService = subCategoryService;
-            _roleManager = roleManager;
-            _userManager = userManager;
+          
             _mapper = mapper;
             _authService = authService;
         }
@@ -63,6 +64,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("createCategory")]
         public IActionResult CreateCategory(CategoryForCreationDTO model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
             var category = new Category
             {
                 CategoryName = model.CategoryName,
@@ -82,7 +87,7 @@ namespace Kuzgun.WebApi.Controllers
         [Route("getCategory/{id}")]
         public IActionResult GetCategory(int id)
         {
-
+            
             var category = _categoryService.GetById(id);
             if (category.Success)
             {
@@ -97,10 +102,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("updateCategory/{id}")]
         public IActionResult UpdateCategory(CategoryForUpdateDTO model, int id)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest("Eksik veya hatalı bilgi gönderdiniz");
-            //}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
             var category = _categoryService.GetById(id);
             if (!category.Success)
             {
@@ -116,6 +121,7 @@ namespace Kuzgun.WebApi.Controllers
         [Route("deleteCategory/{id}")]
         public IActionResult DeleteCategory(int id)
         {
+
             var category = _categoryService.GetById(id);
             if (!category.Success)
             {
@@ -163,7 +169,7 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Eksik yada hatalı bilgi girdiniz");
+                return BadRequest(Messages.ModelNullOrEmpty);
             }
             var subCategory = new SubCategory
             {
@@ -196,6 +202,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("updateSubCategory/{id}")]
         public IActionResult UpdateSubCategory(SubCategoryForUpdateDTO model, int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
             var subCategory = _subCategoryService.GetById(id);
             if (subCategory.Success)
             {
@@ -264,6 +274,10 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (!ModelState.IsValid)
             {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
+            if (!ModelState.IsValid)
+            {
                 return BadRequest("Eksik veya hatalı bilgi girdiniz");
             }
 
@@ -283,9 +297,9 @@ namespace Kuzgun.WebApi.Controllers
 
         public async Task<IActionResult> UpdateRole(int id, RoleForUpdateDTO model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Eksik veya hatalı bilgi girdiniz");
+                return BadRequest(Messages.ModelNullOrEmpty);
             }
 
             var role =await _authService.FindRoleByIdAsync(id);
@@ -385,16 +399,13 @@ namespace Kuzgun.WebApi.Controllers
                 {
                     return BadRequest(role.Message);
                 }
-
-               
-                var userRole = await _userManager.GetRolesAsync(result.Data);
                 var user = _mapper.Map<UserForDetailDTO>(result.Data);
                 user.UserRole = role.Data;
 
                 return Ok(user);
             }
 
-            return BadRequest("Kullanıcı Detayları getirilemedi");
+            return BadRequest(Messages.Error);
         }
 
 
@@ -405,17 +416,16 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (id > 0)
             {
-                var user = await _userManager.FindByIdAsync(id.ToString());
-                if (user == null)
+                var result = await _authService.DeleteUserAsync(id);
+                if (result.Success)
                 {
-                    return BadRequest("Kullanıcı Bulunamadı");
+                    return Ok(result.Message);
                 }
-                user.IsDeleted = true;
-                await _userManager.UpdateAsync(user);
-                return Ok();
+
+                return BadRequest(result.Message);
             }
 
-            return BadRequest();
+            return BadRequest(Messages.Error);
 
         }
 
@@ -425,14 +435,13 @@ namespace Kuzgun.WebApi.Controllers
         {
             if (id > 0)
             {
-                var user = await _userManager.FindByIdAsync(id.ToString());
-                if (user == null)
+                var result = await _authService.ReviveUserAsync(id);
+                if (result.Success)
                 {
-                    return BadRequest("Kullanıcı Bulunamadı");
+                    return Ok(result.Message);
                 }
-                user.IsDeleted = false;
-                await _userManager.UpdateAsync(user);
-                return Ok();
+
+                return BadRequest(result.Message);
             }
 
             return BadRequest();

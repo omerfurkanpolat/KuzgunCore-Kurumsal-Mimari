@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
-
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Utilities.EmailService.Smtp;
 using Kuzgun.Entities.ComplexTypes.MessagesDTO;
 using Kuzgun.Entities.Concrete;
@@ -35,7 +35,7 @@ namespace Kuzgun.WebApi.Controllers
                 
                 return Ok(message);
             }
-            return BadRequest("Mesaj bulunamadı");
+            return BadRequest(Messages.MessageNotFound);
         }
 
         [HttpGet]
@@ -47,7 +47,7 @@ namespace Kuzgun.WebApi.Controllers
             {
                 return Ok(getMessages);
             }
-            return BadRequest("Mesajlar bulunamadı");
+            return BadRequest();
 
 
         }
@@ -74,7 +74,7 @@ namespace Kuzgun.WebApi.Controllers
                 return Ok("Messajınız gönderildi");
 
             }
-            return BadRequest("Eksik bilgi doldurdunuz");
+            return BadRequest(Messages.ModelNullOrEmpty);
 
         }
         [HttpPost]
@@ -98,7 +98,7 @@ namespace Kuzgun.WebApi.Controllers
                 return Ok("Messajınız gönderildi");
 
             }
-            return BadRequest("Eksik bilgi doldurdunuz");
+            return BadRequest(Messages.ModelNullOrEmpty);
 
         }
 

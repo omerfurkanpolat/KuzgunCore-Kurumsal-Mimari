@@ -448,5 +448,39 @@ namespace Kuzgun.Bussines.Concrete.Managers
             }
             return new ErrorDataResult<string>(Messages.RoleNotFound);
         }
+
+        public async Task<IDataResult<User>> DeleteUserAsync(int id)
+        {
+            var user = await FindUserByUserIdAsync(id);
+            if (!user.Success)
+            {
+                return new ErrorDataResult<User>(Messages.UserNotFound);
+            }
+            user.Data.IsDeleted = true;
+            var result = await UpdateUserAsync(user.Data);
+            if (result.Success)
+            {
+                return new SuccessDataResult<User>(Messages.UserDeactive);
+            }
+            return new ErrorDataResult<User>(user.Data,Messages.Error);
+
+        }
+
+        public async Task<IDataResult<User>> ReviveUserAsync(int id)
+        {
+            var user = await FindUserByUserIdAsync(id);
+            if (!user.Success)
+            {
+                return new ErrorDataResult<User>(Messages.UserNotFound);
+            }
+            user.Data.IsDeleted = false;
+            var result = await UpdateUserAsync(user.Data);
+            if (result.Success)
+            {
+                return new SuccessDataResult<User>(Messages.UserDeactive);
+            }
+            return new ErrorDataResult<User>(user.Data, Messages.Error);
+
+        }
     }
 }

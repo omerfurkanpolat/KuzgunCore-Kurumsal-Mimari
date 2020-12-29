@@ -8,7 +8,8 @@ namespace Kuzgun.Entities.ComplexTypes.CategoriesDTO
 {
     public class CategoryForUpdateDTO : IDto
     {
-       
+        [Required]
+        
         public string CategoryName { get; set; }
     }
 }

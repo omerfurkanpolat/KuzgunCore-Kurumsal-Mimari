@@ -40,5 +40,8 @@ namespace Kuzgun.Bussines.Constant
         public static string UserRolesRemove = "Kullanıcının Rolleri Kaldırıldı";
         public static string UserRoleChanged = "Kullanıcın Rolü Değiştirildi";
         public static string UsersNotFound = "Kullanıcılar Bulunamadı";
+        public static string UserDeactive = "Kullanıcı Pasif Hale Getirildi";
+        public static string MessageNotFound = "Mesaj Bulunamadı";
+        public static string ModelNullOrEmpty = "Eksik veya Hatalı Bilgi Girdiniz";
     }
 }
