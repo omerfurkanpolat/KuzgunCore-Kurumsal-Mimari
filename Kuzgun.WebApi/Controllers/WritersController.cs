@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes.PostsDTO;
 using Kuzgun.Entities.Concrete;
@@ -26,8 +27,10 @@ namespace Kuzgun.WebApi.Controllers
         [Route("addPost/{userId}")]
         public IActionResult AddPost(int userId, PostForCreationDTO model)
         {
-            //if (!ModelState.IsValid)
-            //    return BadRequest("Eksik veya hatalı bilgi girdiniz");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
 
             Post post = new Post
             {
@@ -54,25 +57,29 @@ namespace Kuzgun.WebApi.Controllers
         {
 
             if (!ModelState.IsValid || model == null)
-                return BadRequest("Eksik yahut hatalı bilgi girdiniz");
-
-            var post = _postService.GetById(model.PostId); 
-            if (post == null)
-                return BadRequest("böyle bir post mevcut değil");
-
-
-            if (post.UserId != model.UserId && role != "admin")
             {
-                return BadRequest("Bu Makaleyi Değiştirmeye Yetkiniz Yok");
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
+           
+
+            var post = _postService.GetById(model.PostId);
+            if (!post.Success)
+            {
+                return BadRequest(post.Message);
             }
 
-            post.Title = model.Title;
-            post.Body = model.Body;
-            post.ImageUrl = model.ImageUrl;
-            post.SubCategoryId = model.SubCategoryId;
-            post.CategoryId = model.CategoryId;
+            if (post.Data.UserId != model.UserId && role != "admin")
+            {
+                return BadRequest(Messages.YouUnauthorizeChangeThisComment);
+            }
 
-            _postService.Update(post);
+            post.Data.Title = model.Title;
+            post.Data.Body = model.Body;
+            post.Data.ImageUrl = model.ImageUrl;
+            post.Data.SubCategoryId = model.SubCategoryId;
+            post.Data.CategoryId = model.CategoryId;
+
+            _postService.Update(post.Data);
 
             return Ok();
 
@@ -83,15 +90,23 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult DeletePost( int postId)
         {
 
-            var post = _postService.GetById(postId); 
+            var post = _postService.GetById(postId);
 
-            if (post == null)
-                return BadRequest("Silmeye çalıştığınız kayıt mevcut değil");
+            if (!post.Success)
+            {
+                return BadRequest(post.Message);
 
-            _postService.Delete(post);
-       
+            }
+            var result= _postService.Delete(post.Data);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
 
-            return Ok();
+            return BadRequest(result.Message);
+
+
+
 
         }
 

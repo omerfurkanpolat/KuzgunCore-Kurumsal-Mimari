@@ -12,6 +12,7 @@ namespace Kuzgun.Entities.ComplexTypes.CategoriesDTO
         public string CategoryName { get; set; }
 
         public DateTime DateCreated { get; set; }
+        public bool IsDeleted { get; set; }
 
        
 

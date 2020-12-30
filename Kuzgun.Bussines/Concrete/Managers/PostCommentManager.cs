@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.Core.Internal;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Entity.Concrete;
+using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
 
@@ -18,39 +21,58 @@ namespace Kuzgun.Bussines.Concrete.Managers
             _postCommentDal = postCommentDal;
         }
 
-        public List<PostComment> GetAll()
+        public IDataResult <List<PostComment>> GetAll()
         {
-            return _postCommentDal.GetList();
+            var result = _postCommentDal.GetList();
+            if (result==null)
+            {
+                return new ErrorDataResult<List<PostComment>>(Messages.PostCommentsNotFound);
+            }
+            return new SuccessDataResult<List<PostComment>>(result);
         }
 
-        public PostComment GetById(int id)
+        public IDataResult<PostComment> GetById(int id)
         {
-            return _postCommentDal.Get(pc => pc.PostCommentId == id);
+            var result= _postCommentDal.Get(pc => pc.PostCommentId == id);
+            if (result==null)
+            {
+                return new ErrorDataResult<PostComment>(Messages.PostCommentNotFound);
+            }
+            return new SuccessDataResult<PostComment>(result);
         }
 
-        public void Create(PostComment entity)
+        public IResult Create(PostComment entity)
         {
             _postCommentDal.Add(entity);
+            return new SuccessResult(Messages.PostCommentCreated);
         }
 
-        public void Update(PostComment entity)
+        public IResult Update(PostComment entity)
         {
             _postCommentDal.Update(entity);
+            return new SuccessResult(Messages.PostCommentUpdated);
         }
 
-        public void Delete(PostComment entity)
+        public IResult Delete(PostComment entity)
         {
             _postCommentDal.Delete(entity);
+            return new SuccessResult(Messages.PostCommentDeleted);
         }
 
-        public List<PostComment> GetPostCommentRelatedEntitesByPostId(int postId)
+        public IDataResult <List<PostComment>> GetPostCommentRelatedEntitiesByPostId(int postId)
         {
-            return _postCommentDal.GetPostsCommentRelatedEntites().Where(ps => ps.PostId==postId).ToList();
+            var result= _postCommentDal.GetPostsCommentRelatedEntites().Where(ps => ps.PostId == postId).ToList();
+            if (result.IsNullOrEmpty())
+            {
+                return new ErrorDataResult<List<PostComment>>(Messages.PostCommentsNotFound);
+            }
+            return new SuccessDataResult<List<PostComment>>(result);
         }
 
-        public bool PostCommentExist(int userId, int postId)
+        public IDataResult<bool> PostCommentExist(int userId, int postId)
         {
-            return _postCommentDal.GetList().Where(pc => pc.UserId == userId && pc.PostId == postId).Count() > 0;
+            var result =_postCommentDal.GetList().Where(pc => pc.UserId == userId && pc.PostId == postId).Count() > 0;
+            return new SuccessDataResult<bool>(result);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Kuzgun.Entities.ComplexTypes.CategoriesDTO
 {
     public class CategoryForCreationDTO:IDto
     {
-        [Required]
+        //[Required]
         public string CategoryName { get; set; }
     }
 }

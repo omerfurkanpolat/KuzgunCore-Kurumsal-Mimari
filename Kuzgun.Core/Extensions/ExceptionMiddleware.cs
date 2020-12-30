@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
+using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Utilities.Messages;
 using Microsoft.AspNetCore.Http;
 
@@ -39,6 +40,7 @@ namespace Kuzgun.Core.Extensions
             {
                 message = e.Message;
             }
+
 
             return httpContext.Response.WriteAsync(new ErrorDetails
             {

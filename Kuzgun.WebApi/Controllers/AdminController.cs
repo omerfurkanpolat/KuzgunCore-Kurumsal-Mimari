@@ -28,8 +28,6 @@ namespace Kuzgun.WebApi.Controllers
     {
         private ICategoryService _categoryService;
         private ISubCategoryService _subCategoryService;
-        
-      
         private IMapper _mapper;
         private IAuthService _authService;
 
@@ -38,13 +36,12 @@ namespace Kuzgun.WebApi.Controllers
         {
             _categoryService = categoryService;
             _subCategoryService = subCategoryService;
-          
             _mapper = mapper;
             _authService = authService;
         }
         
         [HttpGet]
-        [Route("getCategories")]
+        [Route("getcategories")]
 
         public IActionResult GetCategories()
         {
@@ -61,7 +58,7 @@ namespace Kuzgun.WebApi.Controllers
         }
         
         [HttpPost]
-        [Route("createCategory")]
+        [Route("createcategory")]
         public IActionResult CreateCategory(CategoryForCreationDTO model)
         {
             if (!ModelState.IsValid)
@@ -74,6 +71,7 @@ namespace Kuzgun.WebApi.Controllers
                 DateCreated = DateTime.Now,
                 IsDeleted = false
             };
+
             var result= _categoryService.Create(category);
             if (result.Success)
             {
@@ -89,7 +87,7 @@ namespace Kuzgun.WebApi.Controllers
         {
             
             var category = _categoryService.GetById(id);
-            if (category.Success)
+            if (!category.Success)
             {
                 return BadRequest(category.Message);
             }
@@ -256,15 +254,15 @@ namespace Kuzgun.WebApi.Controllers
 
         [HttpGet]
         [Route("getRoles")]
-        public async Task<IActionResult> GetRoles()
+        public IActionResult GetRoles()
         {
-            var roles = _authService.GetRoles();
+            var roles =_authService.GetRoles();
             
             if (roles.Success)
             {
                 return Ok(roles.Data);
             }
-            return BadRequest("Roller Bulunamadı");
+            return BadRequest(roles.Message);
             
         }
 
@@ -276,10 +274,7 @@ namespace Kuzgun.WebApi.Controllers
             {
                 return BadRequest(Messages.ModelNullOrEmpty);
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Eksik veya hatalı bilgi girdiniz");
-            }
+            
 
             var addRole =await _authService.CreateRoleAsync(model.Name.ToLower());
             if (addRole.Success)
@@ -338,7 +333,7 @@ namespace Kuzgun.WebApi.Controllers
                 return BadRequest(result.Message);
 
             }
-            return BadRequest("Rol bilgisi alınamadı");
+            return BadRequest(Messages.Error);
 
 
         }
@@ -348,7 +343,7 @@ namespace Kuzgun.WebApi.Controllers
         public async Task<IActionResult> ChangeUserRole(int userId, UserForChangeRoleDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Rol ismi alınamadı");
+                return BadRequest(Messages.ModelNullOrEmpty);
 
             var user = await _authService.FindUserByUserIdAsync(userId);
             if (!user.Success)

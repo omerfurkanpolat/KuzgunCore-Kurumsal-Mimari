@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.Core.Internal;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
 using Kuzgun.Bussines.ValidationRules.FluentValidation.Post;
+using Kuzgun.Core.Aspects.Autofac.Transaction;
 using Kuzgun.Core.Aspects.Autofac.Validation;
 using Kuzgun.Core.Entity.Concrete;
+using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
 
@@ -15,25 +19,38 @@ namespace Kuzgun.Bussines.Concrete.Managers
     public class PostManager:IPostService
     {
         private IPostDal _postDal;
-        private IPostStatDal _postStatDal;
+        private IPostStatService _postStatService;
 
-        public PostManager(IPostDal postDal)
+        public PostManager(IPostDal postDal, IPostStatService postStatService)
         {
             _postDal = postDal;
+            _postStatService = postStatService;
         }
 
-        public List<Post> GetAll()
+        public IDataResult<List<Post>>  GetAll()
         {
-            return _postDal.GetList();
+            var result = _postDal.GetList();
+            if (result==null)
+            {
+                return new ErrorDataResult<List<Post>>(Messages.PostsNotFound);
+            }
+            return new SuccessDataResult<List<Post>>(result);
         }
 
-        public Post GetById(int id)
+        public IDataResult <Post> GetById(int id)
         {
-            return _postDal.Get(p => p.PostId == id);
+            var result = _postDal.Get(p => p.PostId == id);
+            if (result==null)
+            {
+                return new ErrorDataResult<Post>(Messages.PostNotFound);
+            }
+            return  new SuccessDataResult<Post>(result);
         }
         
+
         [ValidationAspect(typeof(PostValidator),Priority = 1)]
-        public void Create(Post entity, int subCategoryId)
+        [TransactionScopeAspect]
+        public IResult Create(Post entity, int subCategoryId)
         {
             _postDal.Add(entity);
             PostStat postStat = new PostStat();
@@ -41,55 +58,95 @@ namespace Kuzgun.Bussines.Concrete.Managers
             postStat.Views = 0;
             postStat.Claps = 0;
 
-            _postStatDal.Add(postStat);
+            _postStatService.Create(postStat);
+            return new SuccessResult();
 
         }
 
 
-        public void Update(Post entity)
+        public IResult Update(Post entity)
         {
+            
             _postDal.Update(entity);
+            return new SuccessResult(Messages.PostUpdated);
         }
 
-        public void Delete(Post entity)
+        public IResult Delete(Post entity)
         {
             _postDal.Delete(entity);
+            return new SuccessResult(Messages.PostDeleted);
         }
 
-        public Post GetLastPost()
+        public IDataResult <Post> GetLastPost()
         {
-            return _postDal.GetPostsRelatedEntites().OrderByDescending(p => p.PostId).FirstOrDefault();
+            var result= _postDal.GetPostsRelatedEntites().OrderByDescending(p => p.PostId).FirstOrDefault();
+            if (result==null)
+            {
+                return new ErrorDataResult<Post>(Messages.LastPostNotFound);
+            }
+            return  new SuccessDataResult<Post>(result);
         }
 
-        public List<Post> GetPostsRelatedEntites()
+        public IDataResult <List<Post>> GetPostsRelatedEntities()
         {
-            return _postDal.GetPostsRelatedEntites();
+            var result= _postDal.GetPostsRelatedEntites();
+            if (result==null)
+            {
+                return new ErrorDataResult<List<Post>>(Messages.PostsNotFound);
+            }
+            return  new SuccessDataResult<List<Post>>(result);
         }
 
-        public List<Post> GetPostsBySubCategoryId(int subCategoryId)
+        public IDataResult< List<Post>> GetPostsBySubCategoryId(int subCategoryId)
         {
-            return _postDal.GetPostsRelatedEntites().Where(p=>p.SubCategoryId==subCategoryId).ToList();
+            var result= _postDal.GetPostsRelatedEntites().Where(p => p.SubCategoryId == subCategoryId).ToList();
+            if (result.IsNullOrEmpty())
+            {
+                return new ErrorDataResult<List<Post>>(Messages.PostsNotFound);
+            }
+            return new SuccessDataResult<List<Post>>(result);
         }
 
-        public List<Post> GetPostsByCategoryId(int categoryId)
+        public IDataResult <List<Post>> GetPostsByCategoryId(int categoryId)
         {
-            return _postDal.GetPostsRelatedEntites().Where(p => p.CategoryId == categoryId).ToList();
+            var result= _postDal.GetPostsRelatedEntites().Where(p => p.CategoryId == categoryId).ToList();
+            if (result.IsNullOrEmpty())
+            {
+                return new ErrorDataResult<List<Post>>(Messages.PostsNotFound);
+            }
+            return new SuccessDataResult<List<Post>>(result);
         }
 
-        public Post GetPostRelatedEntitesById(int postId)
+        public IDataResult <Post> GetPostRelatedEntitiesById(int postId)
         {
-            return _postDal.GetPostsRelatedEntites().Where(p => p.PostId==postId).FirstOrDefault();
+            var result = _postDal.GetPostsRelatedEntites().Where(p => p.PostId == postId).FirstOrDefault(); 
+            if (result==null)
+            {
+              return  new ErrorDataResult<Post>(Messages.PostNotFound);
+            }
+            return  new SuccessDataResult<Post>(result);
         }
 
-        public List<Post> GetPostByUserId(int userId)
+        public IDataResult<List<Post>>  GetPostByUserId(int userId)
         {
-            return _postDal.GetPostsRelatedEntites().Where(p => p.UserId == userId).ToList();
+            var result= _postDal.GetPostsRelatedEntites().Where(p => p.UserId == userId).ToList();
+            if (result.IsNullOrEmpty())
+            {
+                
+                return new ErrorDataResult<List<Post>>(Messages.PostsNotFound);
+            }
+            return new SuccessDataResult<List<Post>>(result);
         }
 
-        public Post GetLastPostOfCategories(int categoryId)
+        public IDataResult<Post> GetLastPostOfCategories(int categoryId)
         {
-            return _postDal.GetPostsRelatedEntites().OrderByDescending(p => p.PostId)
+            var result= _postDal.GetPostsRelatedEntites().OrderByDescending(p => p.PostId)
                 .FirstOrDefault(p => p.CategoryId == categoryId);
+            if (result==null)
+            {
+                return new ErrorDataResult<Post>(Messages.PostsNotFound);
+            }
+            return new SuccessDataResult<Post>(result);
         }
     }
 }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Entity.Concrete;
+using Kuzgun.Core.Utilities.Results;
 using Kuzgun.DataAccess.Abstract;
 using Kuzgun.Entities.Concrete;
 
@@ -17,14 +19,20 @@ namespace Kuzgun.Bussines.Concrete.Managers
             _postStatDal = postStatDal;
         }
 
-        public PostStat GetById(int id)
+        public IDataResult<PostStat> GetById(int id)
         {
-            return _postStatDal.Get(ps => ps.PostId==id);
+            var result= _postStatDal.Get(ps => ps.PostId == id);
+            if (result==null)   
+            {
+                return new ErrorDataResult<PostStat>(Messages.PostStatNotFound);
+            }
+            return new SuccessDataResult<PostStat>(result);
         }
 
-        public void Create(PostStat entity)
+        public IResult Create(PostStat entity)
         {
             _postStatDal.Add(entity);
+            return  new SuccessResult();
         }
     }
 }

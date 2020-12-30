@@ -71,7 +71,7 @@ namespace Kuzgun.WebApi.Controllers
                 _messageService.Create(message); 
                 _emailService.SendMail(model.FullName, model.Email, model.MessageHeader, 
                     $"{model.MessageBody} hakkında attığınız mesaj bize ulaştı.\n\nMesajınızı değerlendirilerek en kısa sürede size geri dönüş yapacaktır.");
-                return Ok("Messajınız gönderildi");
+                return Ok(Messages.MessageSend);
 
             }
             return BadRequest(Messages.ModelNullOrEmpty);
@@ -95,7 +95,7 @@ namespace Kuzgun.WebApi.Controllers
                 };
                 _messageService.Create(message);
                 _emailService.SendMail(model.FullName, model.Email, model.MessageHeader, $"{model.Answer} ");
-                return Ok("Messajınız gönderildi");
+                return Ok(Messages.MessageSend);
 
             }
             return BadRequest(Messages.ModelNullOrEmpty);

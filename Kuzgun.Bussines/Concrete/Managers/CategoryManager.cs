@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Castle.Core.Internal;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Bussines.Constant;
 using Kuzgun.Bussines.ValidationRules.FluentValidation;
 using Kuzgun.Bussines.ValidationRules.FluentValidation.Category;
+using Kuzgun.Bussines.ValidationRules.FluentValidation.SubCategory;
 using Kuzgun.Core.Aspects.Autofac.Authorization;
 using Kuzgun.Core.Aspects.Autofac.Caching;
 using Kuzgun.Core.Aspects.Autofac.Exception;
@@ -33,31 +35,46 @@ namespace Kuzgun.Bussines.Concrete.Managers
             _categoryDal = categoryDal;
         }
 
-        
-        //[SecuredOperation("admin")]
+
+       
         //[CacheAspect(duration:2)]
         [LogAspect(typeof(FileLogger))]
         public IDataResult<List<Category>> GetAll()
         {
-            return new SuccessDataResult<List<Category>>(_categoryDal.GetList()); 
+            var result = _categoryDal.GetList();
+            if (result==null)
+            {
+                return new SuccessDataResult<List<Category>>(result);
+            }
+             return new ErrorDataResult<List<Category>>(Messages.CategoriesNotFound);
         }
         [PerformanceAspect(5)]
+        
         public IDataResult<Category> GetById(int id)
         {
-            
-            return new SuccessDataResult<Category>(_categoryDal.Get(c => c.CategoryId == id));  
+            var result = _categoryDal.Get(c => c.CategoryId == id);
+            if (result == null)
+            {
+                return new ErrorDataResult<Category>(Messages.CategoryNotFound);
+            }
+
+            return new SuccessDataResult<Category>(result);  
         }
 
-        [ValidationAspect(typeof(CategoryValidator))]
-        [CacheRemoveAspect("ICategoryService.Get")]
+        //[SecuredOperation("user")]
+        //[ValidationAspect(typeof(CategoryValidator))]
+        //[CacheRemoveAspect("ICategoryService.Get")]
+        [ValidationAspect(typeof(CategoryForCreationDTOValidator))]
         public IResult Create(Category entity)
         {
             
             _categoryDal.Add(entity);
+           
             return new SuccessResult(Messages.CategoryAdded); 
         }
 
-        
+        [SecuredOperation("admin")]
+        [ValidationAspect(typeof(CategoryValidator))]
         public IResult Update(Category entity)
         {
             _categoryDal.Update(entity);
@@ -65,6 +82,8 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessResult(Messages.CategoryUpdated);
         }
 
+        [SecuredOperation("admin")]
+        [ValidationAspect(typeof(CategoryValidator))]
         public IResult Delete(Category entity)
         {
             _categoryDal.Delete(entity);
@@ -73,13 +92,24 @@ namespace Kuzgun.Bussines.Concrete.Managers
 
         public IDataResult<List<int>> GetCategoriesId()
         {
-            return new SuccessDataResult<List<int>>(_categoryDal.GetList().Select(c => c.CategoryId).ToList()); 
+            var result = _categoryDal.GetList().Select(c => c.CategoryId).ToList();
+            if (!result.IsNullOrEmpty())
+            {
+                return new ErrorDataResult<List<int>>();
+            }
+            return new SuccessDataResult<List<int>>(); 
         }
 
         public IDataResult<List<Category>> GetActiveCategories()
         {
-            
-            return new SuccessDataResult<List<Category>>(_categoryDal.GetList(c => c.IsDeleted == false));
+            var result = _categoryDal.GetList(c => c.IsDeleted == false);
+            if (result==null)
+            {
+                return new SuccessDataResult<List<Category>>(result);
+            }
+            return new ErrorDataResult<List<Category>>(Messages.CategoriesNotFound);
+
+           
         }
     }
 }

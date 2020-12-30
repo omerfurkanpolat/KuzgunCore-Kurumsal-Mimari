@@ -15,6 +15,7 @@ namespace Kuzgun.Bussines.Abstract
         IResult Update(SubCategory entity);
         IResult Delete(SubCategory entity);
         IDataResult<List<SubCategory>> GetSubCategoriesByCategoryId(int categoryId);
+        //Gerek Olmayabilir
         IDataResult<List<SubCategory>> GetActiveSubCategoriesByCategoryId(int categoryId);
 
     }

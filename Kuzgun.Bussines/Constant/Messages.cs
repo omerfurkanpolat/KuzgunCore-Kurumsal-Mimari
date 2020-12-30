@@ -43,5 +43,23 @@ namespace Kuzgun.Bussines.Constant
         public static string UserDeactive = "Kullanıcı Pasif Hale Getirildi";
         public static string MessageNotFound = "Mesaj Bulunamadı";
         public static string ModelNullOrEmpty = "Eksik veya Hatalı Bilgi Girdiniz";
+        public static string CategoryNotFound = "Kategori Bulunamadı";
+        public static string MessageSend = "Mesaj Gönderildi";
+        public static string CategoriesNotFound = "Kategoriler Bulunamadı";
+        public static string SubCategoriesNotFound = "Alt Kategoriler Bulunamadı";
+        public static string SubCategoryNotFound = "Alt Kategori Bulunamadı";
+        public static string PostsNotFound = "Makaleler Getirilemedi";
+        public static string PostNotFound = "Makale Bulunamadı";
+        public static string PostUpdated = "Makale Güncellendi";
+        public static string PostDeleted = "Makale Silindi";
+        public static string LastPostNotFound = "Son Makale Getirelemedi";
+        public static string PostStatNotFound = "Makalenin İstatistikleri Bulunamadı";
+        public static string PostCommentsNotFound = "Yorumlar Bulunamadı";
+        public static string PostCommentNotFound = "Yorum Bulunamadı";
+        public static string PostCommentCreated = "Yorum Oluşturuldu";
+        public static string PostCommentUpdated = "Yorum Güncellendi";
+        public static string PostCommentDeleted = "Yorum Silindi";
+        public static string OneCommentToOnePost = "Bir Mahakayele Birden Fazla Yorum Ekleyemezsiniz";
+        public static string YouUnauthorizeChangeThisComment = "Bu Yorumu Değiştirmeye Yetkiniz Yok";
     }
 }

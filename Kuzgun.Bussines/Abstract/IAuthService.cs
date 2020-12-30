@@ -12,7 +12,7 @@ namespace Kuzgun.Bussines.Abstract
     public interface IAuthService
     {
          Task<IDataResult<AccessToken>> CreateAccessToken(User user);
-         Task<List<Role>> ChangeRoleTypeAsync( List<string> roleList);
+         List<Role> ChangeRoleType( List<string> roleList);
          Task<IResult> CreateUserAsync( UserForRegisterDTO userForRegisterDto);
          Task<IResult> CheckIfUserNameExistsAsync(string userName);
          Task <IResult> CheckIfEmailExistsAsync(string email);

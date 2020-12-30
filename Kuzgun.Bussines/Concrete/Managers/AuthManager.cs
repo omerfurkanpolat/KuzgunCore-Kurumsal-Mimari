@@ -43,7 +43,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             var roleList = await _userManager.GetRolesAsync(user);
-            var roles = await ChangeRoleTypeAsync( roleList.ToList());
+            var roles =  ChangeRoleType( roleList.ToList());
 
             var accessToken = _tokenHelper.CreateToken(user, roles);
             if (accessToken == null)
@@ -53,7 +53,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessDataResult<AccessToken>(accessToken, Messages.AccessTokenCreated);
         }
 
-        public async Task<List<Role>> ChangeRoleTypeAsync(List<string> roleList)
+        public List<Role> ChangeRoleType(List<string> roleList)
         {
             var roles = new List<Role>();
             var role = new Role();
@@ -137,6 +137,7 @@ namespace Kuzgun.Bussines.Concrete.Managers
             return new SuccessResult(Messages.RoleCreated);
 
         }
+
         [ValidationAspect(typeof(UserForConfirmEmailDToValidator))]
         public async Task<IResult> ConfirmEmailAsync(UserForConfirmEmailDTO userForConfirmEmailDto)
         {

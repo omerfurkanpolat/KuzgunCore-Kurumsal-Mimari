@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Kuzgun.Bussines.Abstract;
+using Kuzgun.Bussines.Constant;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes.PostCommentsDTO;
 using Kuzgun.Entities.Concrete;
@@ -16,20 +18,23 @@ namespace Kuzgun.WebApi.Controllers
     public class UsersController : ControllerBase
     {
         private IPostCommentService _postCommentService;
+        private IMapper _mapper;
 
-        public UsersController(IPostCommentService postCommentService)
+        public UsersController(IPostCommentService postCommentService, IMapper mapper)
         {
             _postCommentService = postCommentService;
+            _mapper = mapper;
         }
 
-        //
+
         [HttpGet]
         [Route("commentExists/{userId}/{postId}")]
         public IActionResult CommentExists(int userId, int postId)
         {
-            var exists = _postCommentService.PostCommentExist(userId, postId);  
+            var exists = _postCommentService.PostCommentExist(userId, postId);
+
             CommentForReturnDTO model = new CommentForReturnDTO();
-            model.Exists = exists;
+            model.Exists = exists.Data;
 
             return Ok(model);
         }
@@ -39,10 +44,15 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult GetComment(int id)
         {
             var postComment = _postCommentService.GetById(id);
-            if (postComment == null)
-                return BadRequest("Yorum bulunamadı");
-            //var result = _mapper.Map<CommentForReturnDTO>(postComment);
-            return Ok(postComment);
+            if (postComment.Success)
+            {
+                var result = _mapper.Map<CommentForReturnDTO>(postComment);
+                return Ok(result);
+            }
+
+            return BadRequest(postComment.Message);
+
+
         }
 
         [HttpPost]
@@ -50,13 +60,15 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult AddComment(int postId, int userId, CommentForCreationDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
-
-
-            var result = _postCommentService.PostCommentExist(userId, postId);  
-            if (result == true)
-                return BadRequest("Bir makalaye birden fazla yorum ekleyemezsiniz");
-
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
+            }
+            var result = _postCommentService.PostCommentExist(userId, postId);
+            if (result.Data == true)
+            {
+                return BadRequest(Messages.OneCommentToOnePost);
+            }
+ 
             PostComment postComment = new PostComment()
             {
                 UserId = userId,
@@ -74,35 +86,52 @@ namespace Kuzgun.WebApi.Controllers
         {
 
             if (!ModelState.IsValid)
-                return BadRequest("girdiğiniz bilgiler eksik yahut hatalı");
+            {
+                return BadRequest(Messages.ModelNullOrEmpty);
 
-            var postComment = _postCommentService.GetById(commentId);  
+            }
+            var postComment = _postCommentService.GetById(commentId);
 
-            if (postComment == null)
-                return BadRequest("böyle bir yorum henüz girilmemiş");
+            if (!postComment.Success)
+            {
+                return BadRequest(postComment.Message);
+            }
 
+            if (postComment.Data.UserId != userId)
+            {
+                return BadRequest(Messages.YouUnauthorizeChangeThisComment);
+            }
+                
+            postComment.Data.Comment = model.comment;
+            var result= _postCommentService.Update(postComment.Data);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
 
-            if (postComment.UserId != userId)
-                return BadRequest( "Bu yorumu güncellemeye yetkiniz yok");
+            return BadRequest(result.Message);
 
-
-            postComment.Comment = model.comment;
-            _postCommentService.Update(postComment);
-
-            return Ok();
         }
 
         [HttpDelete]
         [Route("deletecomment/{commentId}")]
         public IActionResult DeleteComment(int commentId)
         {
-            var postComment = _postCommentService.GetById(commentId);  
+            var postComment = _postCommentService.GetById(commentId);
 
-            if (postComment == null)
-                return BadRequest("böyle bir yorum yok");
+            if (!postComment.Success)
+            {
+                return BadRequest(postComment.Message);
+            }
 
-            _postCommentService.Delete(postComment);
-            return Ok();
+            var result=_postCommentService.Delete(postComment.Data);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+
+            return BadRequest(result.Message);
+
         }
 
 

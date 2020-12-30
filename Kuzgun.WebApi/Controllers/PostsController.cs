@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Kuzgun.Bussines.Abstract;
 using Kuzgun.Core.Entity.Concrete;
 using Kuzgun.Entities.ComplexTypes.PostCommentsDTO;
@@ -19,12 +20,14 @@ namespace Kuzgun.WebApi.Controllers
         private IPostService _postService;
         private IPostCommentService _postCommentService;
         private ICategoryService _categoryService;
+        private IMapper _mapper;
 
-        public PostsController(IPostService postService, IPostCommentService postCommentService, ICategoryService categoryService)
+        public PostsController(IPostService postService, IPostCommentService postCommentService, ICategoryService categoryService, IMapper mapper)
         {
             _postService = postService;
             _postCommentService = postCommentService;
             _categoryService = categoryService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -32,10 +35,14 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult LastPost()
         {
             var post = _postService.GetLastPost();
-            if (post == null)
-            { return BadRequest("böyle bir kayıt mevcut değil"); }
-            //var result = _mapper.Map<PostForReturnDTO>(post);
-            return Ok(post);
+            if (post.Success)
+            {
+                var result = _mapper.Map<PostForReturnDTO>(post.Data);
+                return Ok(result);
+
+            }
+            return BadRequest(post.Message);
+
         }
 
 
@@ -43,21 +50,32 @@ namespace Kuzgun.WebApi.Controllers
         [Route("getAllPost")]
         public IActionResult GetAllPost()
         {
-            var posts = _postService.GetPostsRelatedEntites();
-            //var result = _mapper.Map<IEnumerable<PostForReturnDTO>>(posts);
-            return Ok(posts);
+            var posts = _postService.GetPostsRelatedEntities();
+            if (posts.Success)
+            {
+                var result = _mapper.Map<List<PostForReturnDTO>>(posts.Data);
+                return Ok(result);
+            }
+
+            return BadRequest(posts.Message);
+
+
         }
 
         [HttpGet]
         [Route("getPostsBySubCategory/{subCategoryId}")]
         public IActionResult GetPostsBySubCategory(int subCategoryId)
         {
+            var posts = _postService.GetPostsBySubCategoryId(subCategoryId);
+            if (posts.Success)
+            {
+                var result = _mapper.Map<List<PostForReturnDTO>>(posts.Data);
+                return Ok(result);
 
-            var posts = _postService.GetPostsBySubCategoryId(subCategoryId);    
-            if (posts == null)
-                return BadRequest("böyle bir kayıt mevcut değil");
-            //var result = _mapper.Map<List<PostForReturnDTO>>(posts);
-            return Ok(posts);
+            }
+            return BadRequest(posts.Message);
+
+
         }
 
 
@@ -66,25 +84,27 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult GetPostsByCategory(int categoryId)
         {
             var posts = _postService.GetPostsByCategoryId(categoryId);
+            if (posts.Success)
+            {
+                var result = _mapper.Map<List<PostForReturnDTO>>(posts.Data);
+                return Ok(result);
+            }
 
-            if (posts == null)
-                return BadRequest("böyle bir kayıt mevcut değil");
-
-            //var result = _mapper.Map<List<PostForReturnDTO>>(posts);
-
-            return Ok(posts);
+            return BadRequest(posts.Message);
         }
 
         [HttpGet]
         [Route("getPostPostById/{postId}")]
         public IActionResult GetPostById(int postId)
         {
-            var post = _postService.GetPostRelatedEntitesById(postId); 
-            if (post == null)
-            { return BadRequest("böyle bir kayıt mevcut değil"); }
+            var post = _postService.GetPostRelatedEntitiesById(postId);
+            if (post.Success)
+            {
+                var result = _mapper.Map<PostForReturnDTO>(post.Data);
+                return Ok(result);
+            }
 
-            //var result = _mapper.Map<PostForReturnDTO>(post);
-            return Ok(post);
+            return BadRequest(post.Message);
         }
 
         [HttpGet]
@@ -92,15 +112,20 @@ namespace Kuzgun.WebApi.Controllers
         public IActionResult GetPostByUser(int userId)
         {
             var posts = _postService.GetPostByUserId(userId);
-            //var result = _mapper.Map<IEnumerable<PostForReturnDTO>>(posts);
-            return Ok(posts);
+            if (posts.Success)
+            {
+                var result = _mapper.Map<IEnumerable<PostForReturnDTO>>(posts.Data);
+                return Ok(result);
+            }
+
+            return BadRequest(posts.Message);
         }
 
         [HttpGet]
         [Route("getCommentByPostId/{postId}")]
-        public IActionResult  GetCommentByPostId(int postId)
+        public IActionResult GetCommentByPostId(int postId)
         {
-            var comments = _postCommentService.GetPostCommentRelatedEntitesByPostId(postId);
+            var comments = _postCommentService.GetPostCommentRelatedEntitiesByPostId(postId);
             if (comments == null)
             {
                 return BadRequest("Yorum Bulunamadı");
@@ -115,22 +140,22 @@ namespace Kuzgun.WebApi.Controllers
         {
             List<Post> posts = new List<Post>();
 
-            var categoriesId = _categoryService.GetCategoriesId();   
+            var categoriesId = _categoryService.GetCategoriesId();
 
-            foreach (int categoryId in categoriesId.Data )
+            foreach (int categoryId in categoriesId.Data)
             {
-                Post post = _postService.GetLastPostOfCategories(categoryId);
+                var post = _postService.GetLastPostOfCategories(categoryId);
 
                 if (post == null)
                 {
                     continue;
                 }
-                posts.Add(post);
+                posts.Add(post.Data);
 
             }
-            //var result = _mapper.Map<List<PostForReturnDTO>>(posts);
+            var result = _mapper.Map<List<PostForReturnDTO>>(posts);
 
-            return Ok(posts);
+            return Ok(result);
 
         }
 
